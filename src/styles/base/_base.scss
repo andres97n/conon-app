@@ -1,0 +1,329 @@
+html, body{
+    height: 100vh;
+    width: 100vw;
+}
+
+.p-image-preview{
+    max-width: 90vw;
+    max-height: 80vh;
+}
+
+.vertical-align-wrap {
+    // position: absolute;
+    display: table;
+  }
+
+.vertical-align-middle {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+// Estilos de Tabview
+.tabview-custom i, .tabview-custom span {
+    vertical-align: middle;
+}
+
+.tabview-custom span {
+    margin: 0 .5rem;
+}
+
+.center-image {
+    // width:100%;
+    display: flex;
+    justify-content: center;
+}
+
+.align-justify{
+    text-align: justify;
+}
+
+.p-messages-detail{
+    padding: 3em;
+}
+
+.outer{
+    width: 100%;
+}
+
+.inner{
+    display: table;
+    margin: 0 auto;
+}
+
+.p-chips-token{
+    margin: 0.2rem;
+}
+
+.vertical-center-grid{
+    margin: 0;
+    position: absolute;
+    top: 25%;
+    left: 25%;
+}
+
+.vertical-center{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: 0;
+    margin-right: -50px;
+}
+
+.parent{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+}
+
+.outer-ex{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+.p-tabview-nav > i{
+    margin-left: 1em;
+}
+
+.center-button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.center-vertically{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+// .end {
+//     display: flex;
+//     justify-content: end;
+//     align-items: end;
+// }
+
+#parent-rigth {
+    justify-content: end;
+    align-items: end;
+    width: 100%;
+    height: 100%;
+}
+
+.button-start{
+    z-index: 999;
+}
+
+.speeddial-mask-demo .p-speeddial-direction-up {
+    position: fixed;
+    right: 2em;
+    bottom: 4rem;
+    z-index: 999;
+}
+
+.speddial-button{
+    display: block;
+    position: absolute;
+    width: 52px;
+    height: 52px;
+    line-height: 52px;
+    background-color: var(--primary-color);
+    color: var(--primary-color-text);
+    text-align: center;
+    top: 230px;
+    left: -52px;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.speeddial-linear-demo .p-speeddial-direction-up {
+    right: 0;
+    top: calc(50% - 2em);
+}
+
+.speeddial-linear-demo .p-speeddial-direction-down {
+    left: calc(50% - 2rem);
+    top: 0;
+}
+.speeddial-linear-demo .p-speeddial-direction-left {
+    right: 0;
+    top: calc(50% - 2rem);
+}
+.speeddial-linear-demo .p-speeddial-direction-right {
+    left: 0;
+    top: calc(50% - 2rem);
+}
+
+.p-speeddial-list{
+    margin: 1em;
+}
+
+.color-base{
+    background-color: #044360;
+}
+
+.center-element {
+    display: block;
+    margin-left: auto;
+    margin-right: auto 
+}
+
+.center-inside{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.p-chip.custom-chip {
+    background: var(--primary-color);
+    color: var(--primary-color-text);
+}
+
+.icon-success {
+    color: var(--green-500) !important;
+}
+
+.icon-success-hard {
+    color: var(--green-700) !important;
+}
+
+.icon-primary {
+    color: var(--blue-500) !important;
+}
+
+.icon-warn {
+    color: var(--yellow-500) !important;
+}
+
+.icon-secondary {
+    color: var(--bluegray-700) !important;
+}
+
+.icon-black {
+    color: var(--surface-700) !important;
+}
+
+.icon-cyan {
+    color: var(--cyan-500) !important;
+}
+
+.p-chip-text {
+    font-weight: bold;
+}
+
+#area_wrap {
+    white-space: pre;
+}
+
+.p-scrollpanel.custombar1 .p-scrollpanel-wrapper {
+    border-right: 10px solid var(--surface-b);
+}
+
+.p-scrollpanel.custombar1 .p-scrollpanel-bar {
+    background-color: var(--primary-color);
+    opacity: 1;
+    transition: background-color .2s;
+}
+
+.imessage {
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    font-family: "SanFrancisco";
+    font-size: 1.10rem;
+    margin: 0 auto 1rem;
+    max-width: 600px;
+    padding: 0.5rem 1.5rem;
+  }
+  
+.imessage p {
+    border-radius: 1.15rem;
+    line-height: 1.25;
+    max-width: 75%;
+    padding: 0.5rem .875rem;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.imessage p::before,
+.imessage p::after {
+    bottom: -0.1rem;
+    content: "";
+    height: 1rem;
+    position: absolute;
+}
+
+p.from-me {
+    align-self: flex-end;
+    background-color: #248bf5;
+    color: #fff; 
+}
+
+p.from-me::before {
+    border-bottom-left-radius: 0.8rem 0.7rem;
+    border-right: 1rem solid #248bf5;
+    right: -0.35rem;
+    transform: translate(0, -0.1rem);
+}
+
+p.from-me::after {
+    background-color: #fff;
+    border-bottom-left-radius: 0.5rem;
+    right: -40px;
+    transform:translate(-30px, -2px);
+    width: 10px;
+}
+  
+  p[class^="from-"] {
+    margin: 0.5rem 0;
+    width: fit-content;
+  }
+  
+  p.from-me ~ p.from-me {
+    margin: 0.25rem 0 0;
+  }
+  
+  p.from-me ~ p.from-me:not(:last-child) {
+    margin: 0.25rem 0 0;
+  }
+  
+  p.from-me ~ p.from-me:last-child {
+    margin-bottom: 0.5rem;
+  }
+  
+  p.from-them {
+    align-items: flex-start;
+    background-color: #e5e5ea;
+    color: #000;
+  }
+  
+  p.from-them:before {
+    border-bottom-right-radius: 0.8rem 0.7rem;
+    border-left: 1rem solid #e5e5ea;
+    left: -0.35rem;
+    transform: translate(0, -0.1rem);
+  }
+  
+  p.from-them::after {
+    background-color: #fff;
+    border-bottom-right-radius: 0.5rem;
+    left: 20px;
+    transform: translate(-30px, -2px);
+    width: 10px;
+  }
+
+  p[class^="from-"].emoji {
+    background: none;
+    font-size: 2rem;
+  }
+  
+  p[class^="from-"].emoji::before {
+    content: none;
+  }
+  
+  .no-tail::before {
+    display: none;
+  }

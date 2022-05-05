@@ -1,0 +1,74 @@
+INSTALLED LIBRARIES
+
+-----------------------------------------------
+SASS
+npm install node-sass
+https://www.npmjs.com/package/node-sass
+_______________________________________________
+REACT ROUTER
+npm install react-router-dom
+https://reactrouter.com/web/guides/quick-start
+___________________________________________________
+REDUX
+npm install react-redux redux
+https://es.redux.js.org/
+--------------------------------------------------
+REDUX THUNK
+npm i redux-thunk
+https://www.npmjs.com/package/redux-thunk
+--------------------------------------------------
+REACT BOOTSTRAP
+npm install react-bootstrap bootstrap
+https://react-bootstrap.github.io/
+--------------------------------------------------
+SWEETALERT2
+npm install sweetalert2
+https://sweetalert2.github.io/#examples
+--------------------------------------------------
+FONT-AWESOME (CDN)
+https://cdnjs.com/libraries/font-awesome
+https://fontawesome.com/
+--------------------------------------------------
+REACT TRANSITION
+npm i react-transition-group
+https://www.npmjs.com/package/react-transition-group
+_______________________________________________________
+CLASSNAMES
+npm i classnames
+https://www.npmjs.com/package/classnames
+______________________________________________________
+PRIME REACT 
+npm install primereact --save
+npm install primeicons --save
+npm install primeflex
+https://primefaces.org/primereact/showcase/#/setup
+https://www.primefaces.org/primeflex/
+_____________________________________________________
+RECT APP POLYFILL
+npm i react-app-polyfill
+https://www.npmjs.com/package/react-app-polyfill
+______________________________________________________
+PRISM JS
+npm i prismjs
+https://www.npmjs.com/package/prismjs
+______________________________________________________
+FORMIK
+npm install formik
+https://formik.org/docs/overview
+________________________________________________________
+MOMENT
+npm install moment
+https://momentjs.com/docs/#/use-it/
+_______________________________________________________
+FIREBASE
+npm install FIREBASE
+firebase.com
+_______________________________________________________
+QUILL
+npm install quill
+https://quilljs.com/docs/
+________________________________________________________
+LUXON 
+npm install luxon
+https://moment.github.io/luxon/#/install
+________________________________________________________
