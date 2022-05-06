@@ -6,7 +6,6 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 export const TeacherTopicEditHeaderRubricAbpDetailApp = React.memo(({
   sections
 }) => {
-  console.log(sections);
   return (
     <>
       <div className='col-12'>

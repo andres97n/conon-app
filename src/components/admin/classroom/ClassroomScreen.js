@@ -332,13 +332,16 @@ export const ClassroomScreen = () => {
     }
 
     const stateBodyTemplate = (rowData) => {
-        return <Badge
-            value={rowData.state}
-            className='ml-2' 
+        return <Badge 
+            value={
+                rowData.state === 1
+                    ? 'Activo'
+                    : 'Inactivo'
+            } 
             severity={
-                (rowData.state === 'Abierto')
-                    ? ('success')
-                    : ('danger')
+                (rowData.state === 1)
+                    ? ("success")
+                    : ('warning')
             }
         ></Badge>;
     }

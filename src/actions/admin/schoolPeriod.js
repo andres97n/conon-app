@@ -3,9 +3,8 @@ import Swal from "sweetalert2";
 import { types } from "../../types/types";
 import { getDate, getError, getSchoolPeriodData, getSchoolPeriodErrorMessage } from "../../helpers/admin";
 import { fetchWithToken } from "../../helpers/fetch";
+import { startSetCurrentSchoolPeriod } from "../ui";
 
-// TODO: Cuando un período lectivo se crea se debe crear los glosarios correspondientes
-//  a cada una de las aulas en el mismo.
 
 export const startLoadSchoolPeriods = ( active ) => {
     return async (dispatch) => {
@@ -49,16 +48,16 @@ export const startSaveSchoolPeriod = ( schoolPeriod, toast ) => {
                     init_date: getDate(schoolPeriod.init_date, 'YYYY-MM-DD'),
                     end_date: getDate(schoolPeriod.end_date, 'YYYY-MM-DD'),
                     school_end_date: getDate(schoolPeriod.school_end_date, 'YYYY-MM-DD'),
-                    observations: schoolPeriod.observations || 'S/N'
+                    observations: schoolPeriod.observations || 'S/N',
+                    state: 1,
                 }, 
                 'POST'  
             );
             const body_school_period = await resp_school_period.json();
 
             if ( body_school_period.ok ) {
-
                 dispatch( addNewSchoolPeriod( getSchoolPeriodData( schoolPeriod, body_school_period.id ) ));
-
+                dispatch( startSetCurrentSchoolPeriod() );
                 toast.current.show({ 
                     severity: 'success', 
                     summary: 'Conon Informa', 

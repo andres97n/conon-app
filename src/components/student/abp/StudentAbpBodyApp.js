@@ -37,7 +37,6 @@ export const StudentAbpBodyApp = React.memo(({
     const currentTeamDetail = teamDetail[0] || [];
     const { 
         id = null, 
-        team_detail_abp = null, 
         is_moderator = null, 
         step = null 
     } = currentTeamDetail;
@@ -54,7 +53,7 @@ export const StudentAbpBodyApp = React.memo(({
             setActiveIndex(oldState => oldState + 1);
         }
         infoMsg.current.clear();
-        dispatch( startNextStepTeamAbp( teamAbp, team_detail_abp, toast ) );
+        dispatch( startNextStepTeamAbp( teamAbp, id, toast ) );
         scrollTop();
     }
 

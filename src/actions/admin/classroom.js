@@ -212,18 +212,17 @@ export const startSaveClassroom = ( classroom, toast ) => {
                     name: classroom.name,
                     school_period: classroom.school_period.id,
                     curse_level: classroom.curse_level,
-                    capacity: classroom.capacity
+                    capacity: classroom.capacity,
+                    state: 1,
                 }, 
                 'POST'  
             );
             const body_classroom = await resp_classroom.json();
     
             if ( body_classroom.ok ) {
-                
                 dispatch( addNewClassroom( 
                     getClassroomData( classroom, body_classroom.id ))
                 );
-    
                 toast.current.show({ 
                     severity: 'success', 
                     summary: 'Conon Informa', 
