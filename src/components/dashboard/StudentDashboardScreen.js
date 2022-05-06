@@ -14,7 +14,7 @@ import '../../styles/flags/flags.css';
 import { NavbarScreen } from '../shared/NavbarScreen';
 import { SideNavigation } from '../shared/SideNavigation';
 import { FooterScreen } from '../shared/FooterScreen';
-import { AppConfig } from '../shared/AppConfig';
+// import { AppConfig } from '../shared/AppConfig';
 import { MethodologyStudentScreen } from '../student/MethodologyStudentScreen';
 import { ToolMainScreen } from '../ui/tool/ToolMainScreen';
 import { MessageScreen } from '../ui/message/MessageScreen';
@@ -228,7 +228,7 @@ export const StudentDashboardScreen = () => {
                 <FooterScreen layoutColorMode={layoutColorMode}/>
             </div>
 
-            <AppConfig 
+            {/* <AppConfig 
                 rippleEffect={ripple} 
                 onRippleEffect={onRipple}  
                 inputStyle={inputStyle} 
@@ -237,7 +237,7 @@ export const StudentDashboardScreen = () => {
                 onLayoutModeChange={onLayoutModeChange} 
                 layoutColorMode={layoutColorMode} 
                 onColorModeChange={onColorModeChange} 
-            />
+            /> */}
 
             <CSSTransition
                 classNames="layout-mask" 
