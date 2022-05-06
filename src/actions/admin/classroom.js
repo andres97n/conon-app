@@ -18,7 +18,7 @@ export const startLoadClassrooms = ( active ) => {
             const body_classroom = await resp_classroom.json();
     
             if (body_classroom.ok) {
-                dispatch( setClassrooms( changeDate( body_classroom.conon_data )));
+                dispatch( setClassrooms( body_classroom.conon_data ));
                 dispatch( endLoadingClassroom() );
             } else {
                 Swal.fire('Error', body_classroom.detail, 'error');
