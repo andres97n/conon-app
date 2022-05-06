@@ -399,7 +399,7 @@ export const ClassroomScreen = () => {
                         <Column expander style={{ width: '4em' }} />
                         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
                         <Column field="name" header="Nombre" sortable></Column>
-                        <Column field='state' header="Nivel del Curso" sortable></Column>
+                        <Column field='curse_level' header="Nivel del Curso" sortable></Column>
                         <Column field="school_period.name" header="Período Lectivo" sortable></Column>
                         <Column field="state" header="Estado" body={stateBodyTemplate} sortable></Column>
                         <Column field='created_at' header="Fecha de Creación" sortable></Column>
