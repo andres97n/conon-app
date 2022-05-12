@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { Message } from 'primereact/message';
 import { Accordion, AccordionTab } from 'primereact/accordion';
@@ -10,9 +10,11 @@ import { StudentAcOrganizerQualifyTeamApp } from './StudentAcOrganizerQualifyTea
 import { getIconRole } from '../../../../../helpers/topic/table/topicTable';
 
 
-export const StudentAcOrganizerTeamDescriptionApp = React.memo(() => {
+export const StudentAcOrganizerTeamDescriptionApp = React.memo(({
+  teamDetailAc,
+  toast
+}) => {
 
-  const dispatch = useDispatch();
   const { currentTeam, loadingTeamAc } = useSelector(state => state.dashboard.teamAc);
 
   const headerAccorditionTemplate = ( student ) => (
@@ -74,7 +76,11 @@ export const StudentAcOrganizerTeamDescriptionApp = React.memo(() => {
               header={headerAccorditionTemplate(student)}
               key={student.id}
             >
-              <StudentAcOrganizerQualifyTeamApp />
+              <StudentAcOrganizerQualifyTeamApp
+                student={student}
+                teamDetailAc={teamDetailAc}
+                toast={toast}
+              />
             </AccordionTab>
           ))
         }

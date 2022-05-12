@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { confirmDialog } from 'primereact/confirmdialog';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 
 import { Messages } from 'primereact/messages';
@@ -9,11 +9,21 @@ import { Button } from 'primereact/button';
 import { StudentAcQuestionFormDetailApp } from './StudentAcQuestionFormDetailApp';
 
 import { getMultipleFormError } from '../../../../../helpers/topic/student/ac/acCoordinator';
+import { 
+  startLoadSpokesmanQuestionsWithAnswersAc, startSaveSpokesmanQuestionAc 
+} from '../../../../../actions/student/ac_roles/spokesmanAc/spokesmanQuestionAc';
+import { 
+  getSpokesmanQuestionsObject 
+} from '../../../../../helpers/topic/student/ac_roles/spokesmanAc';
 
 
-export const StudentAcSpokesmanQuestionFormApp = React.memo(() => {
+export const StudentAcSpokesmanQuestionFormApp = React.memo(({
+  teamDetailAc,
+  toast
+}) => {
   
   const dispatch = useDispatch();
+  const { spokesmanQuestions } = useSelector( state => state.dashboard.spokesmanAc );
   const infoMsg = useRef(null);
   const formik = useFormik({
     initialValues: {
@@ -31,10 +41,15 @@ export const StudentAcSpokesmanQuestionFormApp = React.memo(() => {
     }
   });
 
-  const { values, errors, setFieldValue, handleSubmit } = formik;
+  const { values, errors, setFieldValue, handleReset, handleSubmit } = formik;
 
   const handleSubmitSpokesmanQuestions = ( data ) => {
-    console.log(data);
+    const newQuestions = getSpokesmanQuestionsObject(
+      data.questions,
+      teamDetailAc.id
+    );
+    dispatch( startSaveSpokesmanQuestionAc( newQuestions, toast ));
+    handleReset();
   }
 
   const handleConfirmSaveSpokesmanQuestions = ( data ) => {
@@ -52,6 +67,12 @@ export const StudentAcSpokesmanQuestionFormApp = React.memo(() => {
     });
   };
 
+  const handleLoadSpokesmanQuestions = useCallback(
+    ( teamDetailId ) => {
+      dispatch( startLoadSpokesmanQuestionsWithAnswersAc( teamDetailId ));
+    }, [dispatch],
+  );
+
   const handleSetFieldValue = useCallback(
     ( field, value ) => {
       setFieldValue( field, value );
@@ -68,6 +89,12 @@ export const StudentAcSpokesmanQuestionFormApp = React.memo(() => {
       });
     }
   }, []);
+
+  useEffect(() => {
+    if (Object.keys(teamDetailAc).length > 0 && spokesmanQuestions.length === 0) {
+      handleLoadSpokesmanQuestions( teamDetailAc.id );
+    }
+  }, [teamDetailAc, spokesmanQuestions, handleLoadSpokesmanQuestions]);
 
   return (
     <>
@@ -91,7 +118,8 @@ export const StudentAcSpokesmanQuestionFormApp = React.memo(() => {
               }
               icon='fas fa-envelope-open-text'
               type='submit'
-              className="p-button-raised p-button-success" 
+              className="p-button-raised p-button-success"
+              disabled={spokesmanQuestions.length >= 4}
               onClick={handleSubmit}
             />
           </div>
@@ -100,6 +128,7 @@ export const StudentAcSpokesmanQuestionFormApp = React.memo(() => {
       <StudentAcQuestionFormDetailApp 
         acContainer={values.questions}
         errors={errors}
+        maxItems={4 - spokesmanQuestions.length}
         setFieldValue={handleSetFieldValue}
       />
     </>

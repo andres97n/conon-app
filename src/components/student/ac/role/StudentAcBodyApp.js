@@ -23,6 +23,7 @@ export const StudentAcBodyApp = React.memo(({
           ? (
             <StudentAcCoordinatorRoleBodyApp
               userId={userId}
+              teamDetailAc={userAc}
               currentMethodology={currentMethodology} 
               selectedTopic={selectedTopic}
               toast={toast}
@@ -32,8 +33,9 @@ export const StudentAcBodyApp = React.memo(({
             ? (
               <StudentAcSpokesmanRoleBodyApp 
                 userId={userId}
-                currentMethodology={currentMethodology} 
+                currentMethodology={currentMethodology}
                 selectedTopic={selectedTopic}
+                teamDetailAc={userAc}
                 toast={toast}
               />
             )
@@ -41,8 +43,8 @@ export const StudentAcBodyApp = React.memo(({
               ? (
                 <StudentAcOrganizerRoleBodyApp 
                   userId={userId}
-                  currentMethodology={currentMethodology} 
-                  selectedTopic={selectedTopic}
+                  currentMethodology={currentMethodology}
+                  teamDetailAc={userAc}
                   toast={toast}
                 />
               )
@@ -51,7 +53,7 @@ export const StudentAcBodyApp = React.memo(({
                   <StudentAcSecretaryRoleBodyApp 
                     userId={userId}
                     currentMethodology={currentMethodology} 
-                    selectedTopic={selectedTopic}
+                    teamDetailAc={userAc}
                     toast={toast}
                   />
                 )

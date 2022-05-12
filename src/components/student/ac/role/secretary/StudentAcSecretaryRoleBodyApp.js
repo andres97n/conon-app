@@ -1,18 +1,31 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { useDispatch } from 'react-redux';
 
 import { Messages } from 'primereact/messages';
+
 import { StudentAcSecretaryPathFormApp } from './StudentAcSecretaryPathFormApp';
 import { StudentAcSecretarySendInfoFormApp } from './StudentAcSecretarySendInfoFormApp';
+
+import { 
+  startRemoveSecretaryInformationAcList 
+} from '../../../../../actions/student/ac_roles/secretaryAc/secretaryInformationAc';
 
 
 export const StudentAcSecretaryRoleBodyApp = React.memo(({
   userId,
   currentMethodology,
-  selectedTopic,
+  teamDetailAc,
   toast
 }) => {
   
+  const dispatch = useDispatch();
   const infoMsg = useRef(null);
+
+  const handleRemoveSecretaryData = useCallback(
+    () => {
+      dispatch( startRemoveSecretaryInformationAcList() );
+    }, [dispatch],
+  );
 
   useEffect(() => {
     if ( infoMsg.current?.state.messages?.length === 0 ) {
@@ -26,7 +39,13 @@ export const StudentAcSecretaryRoleBodyApp = React.memo(({
     }
   }, []);
 
-  // TODO: La descripción hacia las preguntas del docente deberá ser en el mismo componente
+  useEffect(() => {
+    return () => {
+      if (Object.keys(teamDetailAc).length > 0) {
+        handleRemoveSecretaryData();
+      }
+    }
+  }, [teamDetailAc, handleRemoveSecretaryData]);
 
   return (
     <div className='grid p-fluid'>
@@ -38,7 +57,10 @@ export const StudentAcSecretaryRoleBodyApp = React.memo(({
       </div>
       <div className='col-6'>
         <div className='card'>
-          <StudentAcSecretaryPathFormApp />
+          <StudentAcSecretaryPathFormApp 
+            teamDetailAc={teamDetailAc}
+            toast={toast}
+          />
         </div>
       </div>
       <div className='col-6'>

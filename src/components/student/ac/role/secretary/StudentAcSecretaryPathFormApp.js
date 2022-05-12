@@ -1,18 +1,35 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { confirmDialog } from 'primereact/confirmdialog';
 import { useFormik } from 'formik';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Messages } from 'primereact/messages';
 import { Button } from 'primereact/button';
 import { Tooltip } from 'primereact/tooltip';
 
+import { EmptyContentScreen } from '../../../../ui/EmptyContentScreen';
 import { StudentAcSecretaryPathDetailApp } from './StudentAcSecretaryPathDetailApp';
 
 import { isValidHttpUrl } from '../../../../../helpers/abp-steps';
+import { 
+  getSecretaryInformationObject 
+} from '../../../../../helpers/topic/student/ac_roles/secretaryAc';
+import { 
+  startLoadSecretaryInformationsAcList, 
+  startSaveSecretaryInformationAc 
+} from '../../../../../actions/student/ac_roles/secretaryAc/secretaryInformationAc';
 
 
-export const StudentAcSecretaryPathFormApp = React.memo(() => {
+export const StudentAcSecretaryPathFormApp = React.memo(({
+  teamDetailAc,
+  toast
+}) => {
   
+  const dispatch = useDispatch();
+  const {
+    secretaryInformations,
+    loadingSecretaryInformation
+  } = useSelector( state => state.dashboard.secretaryAc );
   const infoMsg = useRef(null);
   const formik = useFormik({
     initialValues: {
@@ -47,10 +64,16 @@ export const StudentAcSecretaryPathFormApp = React.memo(() => {
     }
   });
 
-  const { values, errors, setFieldValue, handleSubmit } = formik;
+  const { values, errors, setFieldValue, handleReset, handleSubmit } = formik;
 
   const handleSubmitSecretaryPaths = ( data ) => {
-    console.log(data);
+    const newPaths = getSecretaryInformationObject(
+      data.secretaryPaths,
+      teamDetailAc.team_ac
+    );
+    dispatch( startSaveSecretaryInformationAc( newPaths, toast ));
+    console.log(newPaths);
+    handleReset();
   }
 
   const handleConfirmSaveSecretaryPaths = ( data ) => {
@@ -68,6 +91,12 @@ export const StudentAcSecretaryPathFormApp = React.memo(() => {
     });
   };
 
+  const handleLoadSecretaryInformation = useCallback(
+    ( teamId ) => {
+      dispatch( startLoadSecretaryInformationsAcList( teamId ));
+    }, [dispatch],
+  );
+
   const handleSetFieldValue = useCallback(
     ( field, value ) => {
       setFieldValue( field, value );
@@ -84,6 +113,20 @@ export const StudentAcSecretaryPathFormApp = React.memo(() => {
       });
     }
   }, []);
+
+  useEffect(() => {
+    if (Object.keys(teamDetailAc).length > 0) {
+      handleLoadSecretaryInformation( teamDetailAc.team_ac );
+    }
+  }, [teamDetailAc, handleLoadSecretaryInformation]);
+
+  if (loadingSecretaryInformation) {
+    return (
+      <div className='grid p-fluid'>
+        <EmptyContentScreen/>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -111,10 +154,11 @@ export const StudentAcSecretaryPathFormApp = React.memo(() => {
         <div className='center-inside'>
           <div className='col-6'>
             <Button
-              label={values.secretaryPaths.length === 1 ? 'Guarda Enlace' : 'Guarda Enlaces'} 
+              label={values.secretaryPaths.length === 1 ?'Guarda Enlace' :'Guarda Enlaces'} 
               icon='fas fa-save'
               type='submit'
-              className="p-button-raised p-button-primary " 
+              className="p-button-raised p-button-primary"
+              disabled={secretaryInformations.length >= 20} 
               onClick={handleSubmit}
             />
           </div>
@@ -123,6 +167,7 @@ export const StudentAcSecretaryPathFormApp = React.memo(() => {
       <StudentAcSecretaryPathDetailApp 
         acContainer={values.secretaryPaths}
         errors={errors}
+        maxItems={20 - secretaryInformations.length}
         setFieldValue={handleSetFieldValue}
       />
     </>

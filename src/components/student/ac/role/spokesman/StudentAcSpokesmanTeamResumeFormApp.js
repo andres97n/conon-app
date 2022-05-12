@@ -1,23 +1,38 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { useFormik } from 'formik';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Messages } from 'primereact/messages';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 
-import { TopicTeacherAudioTabApp } from '../../../../teacher/content/topic/dua/TopicTeacherAudioTabApp';
+import { EmptyContentScreen } from '../../../../ui/EmptyContentScreen';
+import { 
+  TopicTeacherAudioTabApp 
+} from '../../../../teacher/content/topic/dua/TopicTeacherAudioTabApp';
 
 import { getMethodologyTypeObject } from '../../../../../helpers/topic/header';
+import { 
+  startLoadPerformanceDescriptionSpokesmanAcList, 
+  startSavePerformanceDescriptionSpokesmanAc, 
+  startUpdatePerformanceDescriptionSpokesmanAc 
+} from '../../../../../actions/student/ac_roles/spokesmanAc/performanceDescriptionSpokesmanAc';
 
 
 export const StudentAcSpokesmanTeamResumeFormApp = React.memo(({
   selectedTopic,
+  teamDetailAc,
   toast
 }) => {
-  
+
+  const dispatch = useDispatch();
+  const {
+    spokesmanPerformanceDescription,
+    loadingSpokesmanPerformanceDescription
+  } = useSelector( state => state.dashboard.spokesmanAc );
   const infoMsg = useRef(null);
   const schoolPeriodName = localStorage.getItem('currentPeriodName');
   const schoolData = {
@@ -50,8 +65,25 @@ export const StudentAcSpokesmanTeamResumeFormApp = React.memo(({
   const { values, errors, setFieldValue, handleChange, handleSubmit } = formik;
 
   const handleSaveTeamDescription = ( data ) => {
-    console.log(data);
-    // TODO: Borrar los archivos no guardados
+    const newPerformanceDescription = {
+      team_detail_ac: teamDetailAc.id,
+      performance_description: data.description,
+      oral_description: data.descriptionAudio,
+      active: true
+    };
+    if (Object.keys(spokesmanPerformanceDescription).length === 0) {
+      dispatch( startSavePerformanceDescriptionSpokesmanAc( 
+        newPerformanceDescription, 
+        toast 
+      ));
+    } else {
+      dispatch( startUpdatePerformanceDescriptionSpokesmanAc( 
+        spokesmanPerformanceDescription.id,
+        newPerformanceDescription, 
+        toast 
+      ));
+    }
+    console.log(newPerformanceDescription);
   }
 
   const handleConfirmSaveTeamDescription = ( data ) => {
@@ -65,6 +97,18 @@ export const StudentAcSpokesmanTeamResumeFormApp = React.memo(({
     });
   };
 
+  const handleLoadTeamPerformance = useCallback(
+    ( teamDetailId ) => {
+      dispatch( startLoadPerformanceDescriptionSpokesmanAcList( teamDetailId ));
+    }, [dispatch],
+  );
+
+  const handleSetFieldValue = useCallback(
+    ( field, value ) => {
+      setFieldValue( field, value );
+    }, [setFieldValue],
+  );
+
   useEffect(() => {
     if (infoMsg.current?.state.messages?.length === 0) {
       infoMsg.current.show({ 
@@ -77,12 +121,35 @@ export const StudentAcSpokesmanTeamResumeFormApp = React.memo(({
     }
   }, []);
 
+  useEffect(() => {
+    if (Object.keys(teamDetailAc).length > 0) {
+      handleLoadTeamPerformance( teamDetailAc.id );
+    }
+  }, [teamDetailAc, handleLoadTeamPerformance]);
+
+  useEffect(() => {
+    const handleSetPerformanceData = ( description ) => {
+      handleSetFieldValue( 'description', description.performance_description );
+      handleSetFieldValue( 'descriptionAudio', description.oral_description );
+    }
+    if (Object.keys(spokesmanPerformanceDescription).length > 0) {
+      handleSetPerformanceData( spokesmanPerformanceDescription );
+    }
+  }, [spokesmanPerformanceDescription, handleSetFieldValue]);
+  
+  if (loadingSpokesmanPerformanceDescription) {
+    return (
+      <div className='grid p-fluid'>
+        <EmptyContentScreen />
+      </div>
+    );
+  }
+
   return (
     <>
       <div className='col-12'>
         <h5 className='text-center'>
-          <i className="fas fa-question mr-2 icon-primary" />
-          Preguntas al Docente
+          Describa el Desempeño del Equipo
         </h5>
         <Messages
           ref={infoMsg} 
@@ -92,9 +159,6 @@ export const StudentAcSpokesmanTeamResumeFormApp = React.memo(({
       <div className='grid p-fluid'>
         <div className='col-12'>
           <div className='card'>
-            <h5 className='text-center'>
-              Describa el Desempeño del Equipo
-            </h5>
             <span className="p-float-label mt-3">
               <InputTextarea
                 id='description'
@@ -122,7 +186,7 @@ export const StudentAcSpokesmanTeamResumeFormApp = React.memo(({
               field={'descriptionAudio'}
               maxAudios={2}
               toast={toast}
-              setFieldValue={setFieldValue}
+              setFieldValue={handleSetFieldValue}
             />
           </div>
         </div>

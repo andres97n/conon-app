@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { Message } from 'primereact/message';
@@ -9,6 +9,7 @@ import { Button } from 'primereact/button';
 export const StudentAcSecretaryPathDetailApp = React.memo(({
   acContainer,
   errors,
+  maxItems,
   setFieldValue,
 }) => {
   
@@ -38,6 +39,12 @@ export const StudentAcSecretaryPathDetailApp = React.memo(({
     });
     return error;
   };
+
+  useEffect(() => {
+    if (acContainer.length === 1) {
+      setItemCount(1);
+    }
+  }, [acContainer]);
 
   return (
     <>
@@ -98,7 +105,7 @@ export const StudentAcSecretaryPathDetailApp = React.memo(({
           <Button
             label='Agregar Enlace' 
             icon='fas fa-plus'
-            disabled={itemCount >= 20}
+            disabled={itemCount >= maxItems}
             className="p-button-raised p-button-primary " 
             onClick={handleAddItem}
           />

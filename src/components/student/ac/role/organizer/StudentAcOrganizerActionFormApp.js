@@ -1,31 +1,46 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { useFormik } from 'formik';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Messages } from 'primereact/messages';
 import { Button } from 'primereact/button';
+import { Accordion, AccordionTab } from 'primereact/accordion';
 
+import { EmptyContentScreen } from '../../../../ui/EmptyContentScreen';
 import { StudentAcFormDetailItemsApp } from '../StudentAcFormDetailItemsApp';
+import { StudentAcOrganizerActionViewApp } from './StudentAcOrganizerActionViewApp';
 
 import { getMultipleFormError } from '../../../../../helpers/topic/student/ac/acCoordinator';
+import { 
+  startLoadOrganizerActionsAcList, startSaveOrganizerActionAc 
+} from '../../../../../actions/student/ac_roles/organizerAc/organizerActionAc';
+import { 
+  getOrganizerActionObject 
+} from '../../../../../helpers/topic/student/ac_roles/organizerAc';
 
 
-export const StudentAcOrganizerActionFormApp = React.memo(() => {
+export const StudentAcOrganizerActionFormApp = React.memo(({
+  teamDetailAc,
+  toast
+}) => {
   
   const initialState = [{
     item: ''
   }];
 
   const dispatch = useDispatch();
+  const { 
+    organizerActions, 
+    loadingOrganizerAction 
+  } = useSelector( state => state.dashboard.organizerAc );
   const infoMsg = useRef(null);
   const formik = useFormik({
     initialValues: {
       organizerActions: initialState
     },
     validate: (data) => {
-      let errors = {};
-      
+      let errors = {};      
       return getMultipleFormError(errors, data.organizerActions, 'organizerActions');
     },
     onSubmit: (data) => {
@@ -33,10 +48,15 @@ export const StudentAcOrganizerActionFormApp = React.memo(() => {
     }
   });
 
-  const { values, errors, setFieldValue, handleSubmit } = formik;
+  const { values, errors, setFieldValue, handleReset, handleSubmit } = formik;
 
   const handleSubmitOrganizerActions = ( data ) => {
-    console.log(data);
+    const newOrganizerActions = getOrganizerActionObject(
+      data.organizerActions,
+      teamDetailAc.id
+    );
+    dispatch( startSaveOrganizerActionAc( newOrganizerActions, toast ));
+    handleReset();
   }
 
   const handleConfirmSaveOrganizerActions = ( data ) => {
@@ -53,6 +73,12 @@ export const StudentAcOrganizerActionFormApp = React.memo(() => {
       accept: () => handleSubmitOrganizerActions( data ),
     });
   };
+
+  const handleLoadOrganizerActions = useCallback(
+    ( teamDetailId ) => {
+      dispatch( startLoadOrganizerActionsAcList( teamDetailId ));
+    }, [dispatch],
+  );
 
   const handleSetFieldValue = useCallback(
     ( field, value ) => {
@@ -71,6 +97,20 @@ export const StudentAcOrganizerActionFormApp = React.memo(() => {
     }
   }, []);
 
+  useEffect(() => {
+    if (Object.keys(teamDetailAc).length > 0) {
+      handleLoadOrganizerActions( teamDetailAc.id );
+    }
+  }, [teamDetailAc, handleLoadOrganizerActions]);
+
+  if (loadingOrganizerAction) {
+    return (
+      <div className='grid p-fluid'>
+        <EmptyContentScreen />
+      </div>
+    )
+  }
+
   return (
     <>
       <div className='col-12'>
@@ -83,6 +123,20 @@ export const StudentAcOrganizerActionFormApp = React.memo(() => {
           className='align-justify'
         />
       </div>
+      {
+        organizerActions.length > 0 && (
+          <div className='col-12'>
+            <Accordion>
+              <AccordionTab header="Acciones Guardadas">
+                <StudentAcOrganizerActionViewApp 
+                  organizerActions={organizerActions}
+                  toast={toast}
+                />
+              </AccordionTab>
+            </Accordion>
+          </div>
+        )
+      }
       <div className='col-12'>
         <div className='center-inside'>
           <div className='col-6'>
@@ -93,7 +147,8 @@ export const StudentAcOrganizerActionFormApp = React.memo(() => {
               }
               icon='fas fa-envelope-open-text'
               type='submit'
-              className="p-button-raised p-button-success" 
+              className="p-button-raised p-button-success"
+              disabled={organizerActions.length >= 10}
               onClick={handleSubmit}
             />
           </div>
@@ -103,7 +158,7 @@ export const StudentAcOrganizerActionFormApp = React.memo(() => {
         acContainer={values.organizerActions}
         errors={errors}
         field={'organizerActions'}
-        maxItems={10}
+        maxItems={10 - organizerActions.length}
         placeholder={'Ingresar acción*'}
         buttonLabelAdd={'Añadir Acción'}
         buttonLabelRemove={'Quitar Acción'}

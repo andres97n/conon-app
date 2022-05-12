@@ -6,6 +6,7 @@ import { StudentAcHeaderApp } from './StudentAcHeaderApp';
 import { StudentAcProblemApp } from './StudentAcProblemApp';
 import { StudentAcQuestionsListApp } from './role/StudentAcQuestionsListApp';
 import { StudentAcBodyApp } from './role/StudentAcBodyApp';
+import { StudentAcReferenceListApp } from './role/StudentAcReferenceListApp';
 
 import { 
   startLoadUserAc, 
@@ -17,6 +18,7 @@ import {
 import { 
   startRemoveRubricDetailAcList 
 } from '../../../actions/teacher/rubricAc';
+import { StudentAcEvaluationApp } from './StudentAcEvaluationApp';
 
 
 export const StudentAcApp = React.memo(({
@@ -58,6 +60,8 @@ export const StudentAcApp = React.memo(({
       dispatch( startRemoveTeamFinished() );
     }, [dispatch],
   );
+
+  console.log(isTeamFinished);
 
   useEffect(() => {
     if (currentMethodology && userId) {
@@ -117,7 +121,14 @@ export const StudentAcApp = React.memo(({
             <>
               <div className='col-12'>
                 <div className='card'>
-                  <StudentAcQuestionsListApp />
+                  <StudentAcQuestionsListApp 
+                    teamDetailAc={userAc}
+                    toast={toast}
+                  />
+                  <StudentAcReferenceListApp 
+                    teamDetailAc={userAc}
+                    toast={toast}
+                  />
                 </div>
               </div>
               <div className='col-12'>
@@ -132,7 +143,7 @@ export const StudentAcApp = React.memo(({
             </>
           )
           : (
-            <div></div>
+            <StudentAcEvaluationApp />
           )
       }
     </>

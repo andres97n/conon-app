@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 
 import { Button } from 'primereact/button';
@@ -9,6 +9,7 @@ import { Message } from 'primereact/message';
 export const StudentAcQuestionFormDetailApp = React.memo(({
   acContainer,
   errors,
+  maxItems,
   setFieldValue,
 }) => {
   
@@ -39,6 +40,12 @@ export const StudentAcQuestionFormDetailApp = React.memo(({
     return error;
   };
 
+  useEffect(() => {
+    if (acContainer.length === 1) {
+      setItemCount(1);
+    }
+  }, [acContainer]);
+
   return (
     <>
       {
@@ -68,6 +75,7 @@ export const StudentAcQuestionFormDetailApp = React.memo(({
                           errors['questions'][index]) &&
                           Object.keys(errors['questions'][index]).length > 0
                       })} 
+                      autoComplete='off'
                       onChange={(e) => 
                         setFieldValue(`questions[${index}].item`, e.target.value)
                       }/>
@@ -98,7 +106,7 @@ export const StudentAcQuestionFormDetailApp = React.memo(({
           <Button
             label='Agregar Pregunta' 
             icon='fas fa-plus'
-            disabled={itemCount >= 4}
+            disabled={itemCount >= maxItems}
             className="p-button-raised p-button-primary " 
             onClick={handleAddItem}
           />

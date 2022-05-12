@@ -2,7 +2,7 @@ import { Message } from 'primereact/message';
 import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Panel } from 'primereact/panel';
+import { Accordion, AccordionTab } from 'primereact/accordion';
 
 import { EmptyContentScreen } from '../../../../ui/EmptyContentScreen';
 import { StudentAcOrganizerAssingDetailApp } from './StudentAcOrganizerAssingDetailApp';
@@ -15,7 +15,9 @@ import {
 
 export const StudentAcOrganizerAssignFormApp = React.memo(({
   acId,
-  userId
+  userId,
+  teamDetailAc,
+  toast
 }) => {
   
   const dispatch = useDispatch();
@@ -31,6 +33,15 @@ export const StudentAcOrganizerAssignFormApp = React.memo(({
     () => {
       dispatch( startRemoveTeamAcDetailList() );
     }, [dispatch],
+  );
+
+  const accordionTabHeaderTemplate = ( owner ) => (
+    <React.Fragment>
+      <p>
+        <i className="fas fa-user mr-2 icon-primary" />
+        {owner.name}
+      </p>
+    </React.Fragment>
   );
 
   useEffect(() => {
@@ -89,28 +100,22 @@ export const StudentAcOrganizerAssignFormApp = React.memo(({
         />
       </div>
       <div className='col-12'>
-        {
-          currentTeam[0].team_detail_ac.map( student =>(
-            <div key={student.id}>
-              <Panel
-                header={
-                  <p>
-                    <i className="fas fa-user mr-2 icon-primary" />
-                    {student.owner.name}
-                  </p>
-                } 
-                toggleable 
-                collapsed={true}
-                expandIcon='fas fa-plus'
-                collapseIcon="fas fa-minus"
+        <Accordion>
+          {
+            currentTeam[0].team_detail_ac.map( student =>(
+              <AccordionTab 
+                header={accordionTabHeaderTemplate(student.owner)}
+                key={student.id}
               >
                 <StudentAcOrganizerAssingDetailApp 
                   student={student}
+                  teamDetailAc={teamDetailAc}
+                  toast={toast}
                 />
-              </Panel>
-            </div>
-          ))
-        }
+              </AccordionTab>
+            ))
+          }
+        </Accordion>
       </div>
     </>
   )

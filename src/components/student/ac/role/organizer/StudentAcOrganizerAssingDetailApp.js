@@ -1,20 +1,37 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { useFormik } from 'formik';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Button } from 'primereact/button';
 import { Messages } from 'primereact/messages';
+import { Accordion, AccordionTab } from 'primereact/accordion';
 
+import { EmptyContentScreen } from '../../../../ui/EmptyContentScreen';
 import { StudentAcFormDetailItemsApp } from '../StudentAcFormDetailItemsApp';
+import { 
+  StudentAcOrganizerAssignActivityViewApp 
+} from './StudentAcOrganizerAssignActivityViewApp';
 
 import { getIconRole } from '../../../../../helpers/topic/table/topicTable';
 import { getMultipleFormError } from '../../../../../helpers/topic/student/ac/acCoordinator';
+import { 
+  startLoadAssignActivityOrganizerAcByMember, startSaveAssignActivityOrganizerAc 
+} from '../../../../../actions/student/ac_roles/organizerAc/assignActivityOrganizerAc';
+import { getOrganizerAssignActivityObject } from '../../../../../helpers/topic/student/ac_roles/organizerAc';
 
 
 export const StudentAcOrganizerAssingDetailApp = React.memo(({
-  student
+  student,
+  teamDetailAc,
+  toast
 }) => {
 
+  const dispatch = useDispatch();
+  const {
+    organizerAssignActivities,
+    loadingOrganizerAssignActivity
+  } = useSelector( state => state.dashboard.organizerAc ); 
   const isMounted = useRef(true);
   const initialState = [{
     item: ''
@@ -35,10 +52,16 @@ export const StudentAcOrganizerAssingDetailApp = React.memo(({
     }
   });
 
-  const { values, errors, setFieldValue, handleSubmit } = formik;
+  const { values, errors, setFieldValue, handleReset, handleSubmit } = formik;
 
   const handleSubmitOrganizerStudentActivities = ( data ) => {
-    console.log(data);
+    const newActivities =  getOrganizerAssignActivityObject(
+      data.studentRoles,
+      teamDetailAc.id,
+      student.id
+    );
+    dispatch( startSaveAssignActivityOrganizerAc( newActivities, toast ));
+    handleReset();
   }
 
   const handleConfirmSaveOrganizerActivities = ( data ) => {
@@ -55,6 +78,12 @@ export const StudentAcOrganizerAssingDetailApp = React.memo(({
       accept: () => handleSubmitOrganizerStudentActivities( data ),
     });
   };
+
+  const handleLoadOrganizerAssignActivities = useCallback(
+    ( teamDetailId, memberId ) => {
+      dispatch( startLoadAssignActivityOrganizerAcByMember( teamDetailId, memberId ));
+    }, [dispatch],
+  );
 
   const handleSetFieldValue = useCallback(
     ( field, value ) => {
@@ -78,6 +107,24 @@ export const StudentAcOrganizerAssingDetailApp = React.memo(({
     }
   }, []);
 
+  useEffect(() => {
+    if (
+      Object.keys(teamDetailAc).length > 0 &&
+      Object.keys(student).length > 0 &&
+      isMounted.current  
+    ) {
+      handleLoadOrganizerAssignActivities( teamDetailAc.id, student.id );
+    }
+  }, [teamDetailAc, student, handleLoadOrganizerAssignActivities]);
+
+  if (loadingOrganizerAssignActivity) {
+    return (
+    <div className='grid p-fluid'>
+      <EmptyContentScreen />
+    </div>
+    )
+  }
+
   return (
     <div className='grid p-fluid'>
       <div className='col-12'>
@@ -92,6 +139,20 @@ export const StudentAcOrganizerAssingDetailApp = React.memo(({
           {student.owner.name}
         </h5>
       </div>
+      {
+        organizerAssignActivities.length > 0 && (
+          <div className='col-12'>
+            <Accordion>
+              <AccordionTab header="Actividades Asignadas">
+                <StudentAcOrganizerAssignActivityViewApp 
+                  organizerAssignActivities={organizerAssignActivities}
+                  toast={toast}
+                />
+              </AccordionTab>
+            </Accordion>
+          </div>
+        )
+      }
       <div className='col-12'>
         <div className='center-inside'>
           <div className='col-6'>
@@ -102,26 +163,23 @@ export const StudentAcOrganizerAssingDetailApp = React.memo(({
               }
               icon='fas fa-envelope-open-text'
               type='submit'
-              className="p-button-raised p-button-success" 
+              className="p-button-raised p-button-success"
+              disabled={organizerAssignActivities.length >= 3}
               onClick={handleSubmit}
             />
           </div>
         </div>
       </div>
-      {
-        isMounted.current && (
-          <StudentAcFormDetailItemsApp 
-            acContainer={values.studentRoles}
-            errors={errors}
-            field={'studentRoles'}
-            maxItems={3}
-            placeholder={'Ingresar actividad*'}
-            buttonLabelAdd={'Añadir Actividad'}
-            buttonLabelRemove={'Quitar Actividad'}
-            setFieldValue={handleSetFieldValue}
-          />
-        )
-      }
+        <StudentAcFormDetailItemsApp 
+          acContainer={values.studentRoles}
+          errors={errors}
+          field={'studentRoles'}
+          maxItems={3 - organizerAssignActivities.length}
+          placeholder={'Ingresar actividad*'}
+          buttonLabelAdd={'Añadir Actividad'}
+          buttonLabelRemove={'Quitar Actividad'}
+          setFieldValue={handleSetFieldValue}
+        />
     </div>
   )
 });

@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { useDispatch } from 'react-redux';
 
 import { Messages } from 'primereact/messages';
 
@@ -6,15 +7,34 @@ import { StudentAcOrganizerActionFormApp } from './StudentAcOrganizerActionFormA
 import { StudentAcOrganizerAssignFormApp } from './StudentAcOrganizerAssignFormApp';
 import { StudentAcOrganizerTeamDescriptionApp } from './StudentAcOrganizerTeamDescriptionApp';
 
+import { 
+  startRemoveOrganizerActionAcList 
+} from '../../../../../actions/student/ac_roles/organizerAc/organizerActionAc';
+import { 
+  startRemoveAssignActivityOrganizerAcList 
+} from '../../../../../actions/student/ac_roles/organizerAc/assignActivityOrganizerAc';
+import { 
+  startRemoveDescribeUnderstadingOrganizerAcList 
+} from '../../../../../actions/student/ac_roles/organizerAc/describeUnderstadingOrganizerAc';
+
 
 export const StudentAcOrganizerRoleBodyApp = React.memo(({
   userId,
   currentMethodology,
-  selectedTopic,
+  teamDetailAc,
   toast
 }) => {
   
+  const dispatch = useDispatch();
   const infoMsg = useRef(null);
+
+  const handleRemoveOrganizerData = useCallback(
+    () => {
+      dispatch( startRemoveOrganizerActionAcList() );
+      dispatch( startRemoveAssignActivityOrganizerAcList() );
+      dispatch( startRemoveDescribeUnderstadingOrganizerAcList() );
+    }, [dispatch],
+  );
 
   useEffect(() => {
     if ( infoMsg.current?.state.messages?.length === 0 ) {
@@ -27,6 +47,14 @@ export const StudentAcOrganizerRoleBodyApp = React.memo(({
       });
     }
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (Object.keys(teamDetailAc).length > 0) {
+        handleRemoveOrganizerData();
+      }
+    }
+  }, [teamDetailAc, handleRemoveOrganizerData]);
   
   return (
     <div className='grid p-fluid'>
@@ -38,7 +66,10 @@ export const StudentAcOrganizerRoleBodyApp = React.memo(({
       </div>
       <div className='col-6'>
         <div className='card'>
-          <StudentAcOrganizerActionFormApp />
+          <StudentAcOrganizerActionFormApp 
+            teamDetailAc={teamDetailAc}
+            toast={toast}
+          />
         </div>
       </div>
       <div className='col-6'>
@@ -46,12 +77,17 @@ export const StudentAcOrganizerRoleBodyApp = React.memo(({
           <StudentAcOrganizerAssignFormApp 
             acId={currentMethodology.id}
             userId={userId}
+            teamDetailAc={teamDetailAc}
+            toast={toast}
           />
         </div>
       </div>
       <div className='col-12'>
         <div className='card'>
-          <StudentAcOrganizerTeamDescriptionApp />
+          <StudentAcOrganizerTeamDescriptionApp 
+            teamDetailAc={teamDetailAc}
+            toast={toast}
+          />
         </div>
       </div>
     </div>
