@@ -158,9 +158,7 @@ export const startSaveArea = ( area, toast ) => {
             const body_area = await resp_area.json();
 
             if ( body_area.ok ) {
-
                 dispatch( addNewArea( getAreaData( area, body_area.id ) ));
-
                 toast.current.show({ 
                     severity: 'success', 
                     summary: 'Conon Informa', 
@@ -210,7 +208,9 @@ export const startUpdateArea = ( area, area_id, toast ) => {
             const body_area = await resp_area.json();
 
             if ( body_area.ok ) {
+
                 dispatch( updateArea( getAreaData( area, area_id ) ));
+
                 toast.current.show({ 
                     severity: 'success', 
                     summary: 'Conon Informa', 

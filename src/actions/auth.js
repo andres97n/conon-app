@@ -144,7 +144,6 @@ export const startChecking = () => {
                 //     // dispatch( startLoadStudentData() );
                 //     localStorage.setItem('dashboardReducer', 'student');
                 // }
-
                 if (body.conon_data.type === 2) {
                     dispatch(startLoadTopicsListByStudent(body.conon_data.uid));
                 }

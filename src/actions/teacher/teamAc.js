@@ -144,6 +144,37 @@ export const startSaveTeamAc = ( teamAc, teamDetailsAc, toast ) => {
   }
 }
 
+export const startUpdateTeamAc = ( teamId, teamAc, toast ) => {
+  return async ( dispatch ) => {
+    try {
+      const resp_team_ac = await fetchWithToken( 
+        `ac/api/team-ac/${teamId}/`, teamAc, 'PUT'  
+      );
+      const body_team_ac = await resp_team_ac.json();
+
+      if ( body_team_ac.ok ) {
+        dispatch( setTeamFinished() );
+        getToastMsg(toast, 'success', 'Metodología Actualizada Correctamente' );
+      } else if ( body_team_ac.detail ) {
+        Swal.fire(
+          'Error', 
+          getError( body_team_ac.detail, getTeamAcErrorMessage ), 
+          'error'
+        );
+      } else {
+        Swal.fire(
+        'Error', `${body_team_ac}, consulte con el Desarrollador.`, 'error'
+        );
+      }
+
+    } catch (error) {
+      Swal.fire(
+        'Error', `${error}, consulte con el Desarrollador`, 'error'
+      );
+    }
+  }
+}
+
 export const startBlockTeamAc = ( teamAcId, toast ) => {
   return async (dispatch) => {
     try {

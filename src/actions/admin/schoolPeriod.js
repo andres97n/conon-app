@@ -49,13 +49,14 @@ export const startSaveSchoolPeriod = ( schoolPeriod, toast ) => {
                     end_date: getDate(schoolPeriod.end_date, 'YYYY-MM-DD'),
                     school_end_date: getDate(schoolPeriod.school_end_date, 'YYYY-MM-DD'),
                     observations: schoolPeriod.observations || 'S/N',
-                    state: 1,
+                    state: 1
                 }, 
                 'POST'  
             );
             const body_school_period = await resp_school_period.json();
 
             if ( body_school_period.ok ) {
+
                 dispatch( addNewSchoolPeriod( getSchoolPeriodData( schoolPeriod, body_school_period.id ) ));
                 dispatch( startSetCurrentSchoolPeriod() );
                 toast.current.show({ 
