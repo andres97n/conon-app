@@ -84,7 +84,7 @@ export const TeacherTopicEditMainApp = React.memo(({
       </div>
       {
         (
-          Object.keys(currentMethodology).length === 0 || 
+          !currentMethodology || 
           Object.keys(currentTopic).length === 0
         )
         ? (
