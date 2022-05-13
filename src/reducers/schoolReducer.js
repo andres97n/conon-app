@@ -33,6 +33,10 @@ import { adminReducer } from "./admin/user/adminReducer";
 import { areaReducer } from "./admin/school/areaReducer";
 import { schoolPeriodReducer } from "./admin/school/schoolPeriodReducer";
 import { teacherReducer } from "./admin/user/teacherReducer";
+import { coordinatorAcReducer } from "./student/ac/coordinatorAcReducer";
+import { organizerAcReducer } from "./student/ac/organizerAcReducer";
+import { spokesmanAcReducer } from "./student/ac/spokesmanAcReducer";
+import { secretaryAcReducer } from "./student/ac/secretaryAcReducer";
 
 
 export const schoolReducer = combineReducers({
@@ -62,6 +66,10 @@ export const schoolReducer = combineReducers({
   problemDefinitionStepSix:   problemDefinitionStepSixAbpReducer,
   getInformationStepSeven:    getInformationStepSevenAbpReducer,
   problemResolutionStepEight: problemResolutionStepEightAbpReducer,
+  coordinatorAc:              coordinatorAcReducer,
+  organizerAc:                organizerAcReducer,
+  spokesmanAc:                spokesmanAcReducer,
+  secretaryAc:                secretaryAcReducer,
   topicStudentEvaluation:     topicStudentEvaluationReducer,
   student:                    studentReducer,
   asignature:                 asignatureReducer,

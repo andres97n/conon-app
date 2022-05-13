@@ -49,7 +49,7 @@ export const StudentAbpProblemApp = React.memo(({
                                         <div className="outer">
                                             <div className="inner">
                                                 <Image 
-                                                    src={currentMethodology.descriptive_image?.path}
+                                                    src={currentMethodology.descriptive_image}
                                                     alt="Imagen descriptiva" 
                                                     preview
                                                     width={200}
