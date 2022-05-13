@@ -91,11 +91,11 @@ export const StudentAcSecretaryPathFormApp = React.memo(({
     });
   };
 
-  const handleLoadSecretaryInformation = useCallback(
-    ( teamId ) => {
-      dispatch( startLoadSecretaryInformationsAcList( teamId ));
-    }, [dispatch],
-  );
+  // const handleLoadSecretaryInformation = useCallback(
+  //   ( teamId ) => {
+  //     dispatch( startLoadSecretaryInformationsAcList( teamId ));
+  //   }, [dispatch],
+  // );
 
   const handleSetFieldValue = useCallback(
     ( field, value ) => {
@@ -116,9 +116,9 @@ export const StudentAcSecretaryPathFormApp = React.memo(({
 
   useEffect(() => {
     if (Object.keys(teamDetailAc).length > 0) {
-      handleLoadSecretaryInformation( teamDetailAc.team_ac );
+      // handleLoadSecretaryInformation( teamDetailAc.team_ac );
     }
-  }, [teamDetailAc, handleLoadSecretaryInformation]);
+  }, [teamDetailAc]);
 
   if (loadingSecretaryInformation) {
     return (

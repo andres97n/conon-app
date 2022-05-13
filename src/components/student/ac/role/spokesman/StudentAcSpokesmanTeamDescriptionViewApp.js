@@ -36,7 +36,7 @@ export const StudentAcSpokesmanTeamDescriptionViewApp = ({
       } else if (roleType === 3) {
         dispatch( startLoadOrganizerActionsAcList( teamDetailId ));
       } else if (roleType === 4) {
-        dispatch( startLoadSecretaryInformationsAcList( teamId ));
+        // dispatch( startLoadSecretaryInformationsAcList( teamId ));
       }
     }, [dispatch],
   );
