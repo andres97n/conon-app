@@ -332,6 +332,7 @@ export const ClassroomScreen = () => {
     }
 
     const stateBodyTemplate = (rowData) => {
+        console.log(rowData);
         return <Badge 
             value={
                 rowData.state === 1
