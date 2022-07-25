@@ -27,11 +27,11 @@ export const StudentAcReferenceListApp = React.memo(({
     dispatch( startBlockSecretaryInformationAc( data, toast ));
   }
 
-  // const handleLoadTeamReferences = useCallback(
-  //   ( teamId ) => {
-  //     dispatch( startLoadSecretaryInformationsAcList( teamId ));
-  //   }, [dispatch],
-  // );
+  const handleLoadTeamReferences = useCallback(
+    ( teamId ) => {
+      dispatch( startLoadSecretaryInformationsAcList( teamId ));
+    }, [dispatch],
+  );
 
   const handleRemoveTeamReferences = useCallback(
     () => {
@@ -56,7 +56,7 @@ export const StudentAcReferenceListApp = React.memo(({
       Object.keys(teamDetailAc).length > 0 && isMounted.current
     ) {
       if (teamDetailAc.role_type !== 4) {
-        // handleLoadTeamReferences( teamDetailAc.team_ac );
+        handleLoadTeamReferences( teamDetailAc.team_ac );
       }
     }  
     return () => {
@@ -66,7 +66,7 @@ export const StudentAcReferenceListApp = React.memo(({
         }
       }
     }
-  }, [ teamDetailAc, handleRemoveTeamReferences ]);
+  }, [ teamDetailAc, handleLoadTeamReferences, handleRemoveTeamReferences ]);
 
   return (
     <>

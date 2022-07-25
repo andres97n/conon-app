@@ -58,7 +58,9 @@ export const TopicTeacherFormApp = React.memo(({
 
       errors = getMainTopicFormFieldsErrors( data, errors );
       
-      return getMethodologyFormFieldsErrors( topicData.methodology.abbrev, data, errors );
+      return getMethodologyFormFieldsErrors( 
+        topicData.methodology.abbrev, data, errors 
+      );
     },
     onSubmit: (data) => {
       handleConfirmSaveTopic( data );

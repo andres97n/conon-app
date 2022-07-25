@@ -1,30 +1,33 @@
 import Swal from "sweetalert2";
 
 import { types } from "../../types/types";
-import { changeDate, getError, getGlossaryData, getGlossaryDetailData, getGlossaryErrorMessage } from "../../helpers/admin";
+import { 
+    getError, 
+    getGlossaryDetailErrorMessage, 
+    getGlossaryErrorMessage 
+} from "../../helpers/admin";
 import { fetchWithToken } from "../../helpers/fetch";
+import { getToastMsg } from "../../helpers/abp";
+
 
 export const startLoadGlossaries = () => {
     return async (dispatch) => {
         try {
-            
             dispatch( startLoadingGlossaries() );
             const resp_glossary = await fetchWithToken( 'school/api/glossary/' );
             const body_glossary = await resp_glossary.json();
     
             if (body_glossary.ok) {
-                dispatch( setGlossaries( changeDate( body_glossary.conon_data )));
+                dispatch( setGlossaries( body_glossary.conon_data ));
                 dispatch( endLoadingGlossaries() );
             } else {
                 Swal.fire('Error', body_glossary.detail, 'error');
-                dispatch( endLoadingGlossaries() );
             }
 
         } catch (error) {
             Swal.fire(
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             );
-            dispatch( endLoadingGlossaries() );
         }
     }
 } 
@@ -39,11 +42,41 @@ export const startLoadGlossariesDetail = ( glossary_id ) => {
             const body_glossary = await resp_glossary.json();
     
             if (body_glossary.ok) {
-                dispatch( setGlossariesDetail( changeDate( body_glossary.conon_data )));
+                dispatch( setGlossariesDetail( body_glossary.conon_data ));
                 dispatch( endLoadingGlossaries() );
             } else {
                 Swal.fire('Error', body_glossary.detail, 'error');
+            }
+
+        } catch (error) {
+            Swal.fire(
+                'Error', `${error}, consulte con el Desarrollador.`, 'error'
+            );
+        }
+    }
+}
+
+export const startLoadGlossaryWithDetails = ( classroomId, active ) => {
+    return async (dispatch) => {
+        try {
+            dispatch( startLoadingGlossaries() );
+            let resp_glossary = null;
+            if (active) {
+                resp_glossary = await fetchWithToken( 
+                    `school/api/path/glossary/detail/${classroomId}/${2}/` 
+                );
+            } else {
+                resp_glossary = await fetchWithToken( 
+                    `school/api/path/glossary/detail/${classroomId}/${1}/` 
+                );
+            }
+            const body_glossary = await resp_glossary.json();
+    
+            if (body_glossary.ok) {
+                dispatch( setCurrentGlossary( body_glossary.conon_data ));
                 dispatch( endLoadingGlossaries() );
+            } else {
+                Swal.fire('Error', body_glossary.detail, 'error');
             }
 
         } catch (error) {
@@ -52,33 +85,21 @@ export const startLoadGlossariesDetail = ( glossary_id ) => {
             );
         }
     }
-} 
+}
 
-export const startSaveGlossary = ( glossary, toast ) => {
+export const startSaveGlossary = ( glossary, glossaryDetail, owner, toast ) => {
     return async (dispatch) => {
         try {
-            
             const resp_glossary = await fetchWithToken( 
-                'school/api/glossary/', 
-                {
-                    
-                }, 
-                'POST'  
+                'school/api/glossary/', glossary, 'POST'  
             );
             const body_glossary = await resp_glossary.json();
 
             if ( body_glossary.ok ) {
-                
-                dispatch( addNewGlossary( 
-                    getGlossaryData( glossary, body_glossary.id ))
-                );
-
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: body_glossary.message, 
-                    life: 4000 });
-
+                dispatch( addNewGlossary({ ...glossary, id: body_glossary.id }));
+                dispatch( startSaveGlossaryDetail( 
+                    body_glossary.id, glossaryDetail, owner, toast
+                ));
             } else if ( body_glossary.detail ) {
                 Swal.fire(
                     'Error', 
@@ -87,7 +108,9 @@ export const startSaveGlossary = ( glossary, toast ) => {
                 );
             } else {
                 Swal.fire(
-                    'Error', `${body_glossary}, consulte con el Desarrollador.`, 'error'
+                    'Error', 
+                    getError( body_glossary.detail, getGlossaryErrorMessage ),  
+                    'error'
                 );
             }
 
@@ -99,73 +122,17 @@ export const startSaveGlossary = ( glossary, toast ) => {
     }
 }
 
-export const startUpdateGlossary = ( glossary, glossary_id, toast ) => {
+export const startBlockGlossary = ( glossaryId, toast ) => {
     return async (dispatch) => {
         try {
-            
-            const resp_glossary = await fetchWithToken( 
-                `school/api/glossary/${glossary_id}/`, 
-                {
-                    asignature_classroom: glossary.asignature_classroom.id,
-                    state: glossary.state
-                }, 
-                'PUT'  
-            );
-            const body_glossary = await resp_glossary.json();
-
-            if ( body_glossary.ok ) {
-                
-                dispatch( updateGlossary( 
-                    getGlossaryData( glossary, glossary_id ))
-                );
-
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: 'Glosario Actualizado Correctamente', 
-                    life: 4000 });
-                
-            } else if ( body_glossary.detail ) {
-                Swal.fire(
-                    'Error', 
-                    getError( body_glossary.detail, getGlossaryErrorMessage ), 
-                    'error'
-                );
-            } else {
-                Swal.fire(
-                    'Error', `${body_glossary}, consulte con el Desarrollador.`, 'error'
-                );
-            }
-
-        } catch (error) {
-            Swal.fire(
-                'Error', `${error}, consulte con el Desarrollador.`, 'error'
-            );
-        }
-    }
-}
-
-export const startDeleteGlossary = ( glossary_id, toast ) => {
-    return async (dispatch) => {
-        try {
-            
             const resp_glossary = await fetchWithToken(
-                `school/api/glossary/${glossary_id}/`, 
-                {}, 
-                'DELETE' 
+                `school/api/glossary/${glossaryId}/block/`, {}, 'DELETE' 
             );
             const body_glossary = await resp_glossary.json();
 
             if ( body_glossary.ok ) {
-                
-                dispatch( deleteGlossary( glossary_id ) );
-            
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: body_glossary.message, 
-                    life: 4000 });
-
+                dispatch( deleteGlossary( glossaryId ) );
+                getToastMsg( toast, 'success', body_glossary.message );
             } else {
                 Swal.fire(
                     'Error', body_glossary.detail, 'error'
@@ -180,48 +147,64 @@ export const startDeleteGlossary = ( glossary_id, toast ) => {
     }
 }
 
-export const startGlossaryDetailUpdate = ( 
-    glossary_id, glossary_detail, glossary_detail_id, toast 
-) => {
+export const startDeleteGlossary = ( glossary_id, toast ) => {
     return async (dispatch) => {
         try {
-            
-            const resp_glossary_detail = await fetchWithToken( 
-                `school/api/glossary-detail/${glossary_detail_id}/`, 
-                {
-                    glossary: glossary_id,
-                    title: glossary_detail.title,
-                    description: glossary_detail.description,
-                    image: glossary_detail.image,
-                    url: glossary_detail.url,
-                    state: glossary_detail.state,
-                    observation: glossary_detail.observation
-                }, 
-                'PUT'  
+            const resp_glossary = await fetchWithToken(
+                `school/api/glossary/${glossary_id}/`, {}, 'DELETE' 
             );
-            const body_glossary_detail = await resp_glossary_detail.json();
+            const body_glossary = await resp_glossary.json();
+
+            if ( body_glossary.ok ) {
+                dispatch( deleteGlossary( glossary_id ) );
+                getToastMsg( toast, 'success', body_glossary.message );
+            } else {
+                Swal.fire(
+                    'Error', body_glossary.detail, 'error'
+                );  
+            }
+
+        } catch (error) {
+            Swal.fire(
+                'Error', `${error}, consulte con el Desarrollador.`, 'error'
+            );
+        }
+    }
+}
+
+export const startSaveGlossaryDetail = ( glossaryId, glossaryDetail, owner, toast ) => {
+    return async (dispatch) => {
+        try {
+            const newGlossaryDetail = { glossary: glossaryId, ...glossaryDetail };
+            const resp_glossary = await fetchWithToken( 
+                'school/api/glossary-detail/', newGlossaryDetail, 'POST'  
+            );
+            const body_glossary_detail = await resp_glossary.json();
 
             if ( body_glossary_detail.ok ) {
-                
-                dispatch( updateGlossaryDetail( 
-                    getGlossaryDetailData( glossary_detail, glossary_detail_id ))
-                );
-
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: 'Glosario Actualizado Correctamente', 
-                    life: 4000 });
-                
+                dispatch( addNewGlossaryDetail({ 
+                    ...newGlossaryDetail, 
+                    id: body_glossary_detail.id,
+                    owner
+                }));
+                getToastMsg( toast, 'success', body_glossary_detail.message );
             } else if ( body_glossary_detail.detail ) {
                 Swal.fire(
                     'Error', 
-                    getError( body_glossary_detail.detail, getGlossaryErrorMessage ), 
+                    getError( 
+                        body_glossary_detail.detail, 
+                        getGlossaryDetailErrorMessage 
+                    ), 
                     'error'
                 );
             } else {
                 Swal.fire(
-                    'Error', `${body_glossary_detail}, consulte con el Desarrollador.`, 'error'
+                    'Error', 
+                    getError( 
+                        body_glossary_detail.detail, 
+                        getGlossaryDetailErrorMessage 
+                    ), 
+                    'error'
                 );
             }
 
@@ -233,27 +216,69 @@ export const startGlossaryDetailUpdate = (
     }
 }
 
-export const startDeleteGlossaryDetail = ( glossary_detail_id, toast ) => {
+export const startBlockGlossaryDetail = ( glossary, toast ) => {
     return async (dispatch) => {
         try {
-            
+            const resp_glossary = await fetchWithToken(
+                `school/api/glossary-detail/${glossary.id}/block/`, {}, 'DELETE' 
+            );
+            const body_glossary = await resp_glossary.json();
+
+            if ( body_glossary.ok ) {
+                dispatch( blockGlossaryDetail( glossary ) );
+                getToastMsg( toast, 'success', body_glossary.message );
+            } else {
+                Swal.fire(
+                    'Error', body_glossary.detail, 'error'
+                );  
+            }
+
+        } catch (error) {
+            Swal.fire(
+                'Error', `${error}, consulte con el Desarrollador.`, 'error'
+            );
+        }
+    }
+}
+
+export const startBlockGlossaryDetailByStudent = ( glossaryId, toast ) => {
+    return async (dispatch) => {
+        try {
+            const resp_glossary = await fetchWithToken(
+                `school/api/glossary-detail/${glossaryId}/block/`, {}, 'DELETE' 
+            );
+            const body_glossary = await resp_glossary.json();
+
+            if ( body_glossary.ok ) {
+                dispatch( blockGlossaryDetailByStudent( glossaryId ) );
+                getToastMsg( toast, 'success', body_glossary.message );
+            } else {
+                Swal.fire(
+                    'Error', body_glossary.detail, 'error'
+                );  
+            }
+
+        } catch (error) {
+            Swal.fire(
+                'Error', `${error}, consulte con el Desarrollador.`, 'error'
+            );
+        }
+    }
+}
+
+export const startDeleteGlossaryDetail = ( termId, toast ) => {
+    return async (dispatch) => {
+        try {
             const resp_glossary_detail = await fetchWithToken(
-                `school/api/glossary-detail/${glossary_detail_id}/`, 
+                `school/api/glossary-detail/${termId}/`, 
                 {}, 
                 'DELETE' 
             );
             const body_glossary_detail = await resp_glossary_detail.json();
 
             if ( body_glossary_detail.ok ) {
-                
-                dispatch( deleteGlossaryDetail( glossary_detail_id ) );
-            
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: body_glossary_detail.message, 
-                    life: 4000 });
-
+                dispatch( deleteGlossaryDetail( termId ) );
+                getToastMsg( toast, 'success', body_glossary_detail.message );
             } else {
                 Swal.fire(
                     'Error', body_glossary_detail.detail, 'error'
@@ -268,29 +293,21 @@ export const startDeleteGlossaryDetail = ( glossary_detail_id, toast ) => {
     }
 }
 
-export const startDeleteGlossariesDetail = ( glossaries_detail_keys, toast ) => {
+export const startDeleteGlossariesDetail = ( glossariesDetailKeys, toast ) => {
     return async (dispatch) => {
         try {
-            
             const resp_glossary_detail = await fetchWithToken(
                 'school/api/glossary-detail/destroy-terms/', 
                 {
-                    terms: glossaries_detail_keys
+                    terms: glossariesDetailKeys
                 }, 
                 'DELETE' 
             );
             const body_glossary_detail = await resp_glossary_detail.json();
 
             if ( body_glossary_detail.ok ) {
-                
-                dispatch( deleteGlossariesDetail( glossaries_detail_keys ) );
-
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: body_glossary_detail.message, 
-                    life: 4000 });
-
+                dispatch( deleteGlossariesDetail( glossariesDetailKeys ) );
+                getToastMsg( toast, 'success', body_glossary_detail.message );
             } else {
                 Swal.fire(
                     'Error', body_glossary_detail.detail, 'error'
@@ -327,11 +344,6 @@ const addNewGlossary = ( glossary ) => ({
     payload: glossary
 });
 
-const updateGlossary = ( glossary ) => ({
-    type: types.glossaryUpdate,
-    payload: glossary
-});
-
 const deleteGlossary = ( glossary_id ) => ({
     type: types.glossaryDelete,
     payload: glossary_id
@@ -346,9 +358,19 @@ export const startRemoveGlossariesDetail = () => ({
     type: types.glossariesDetailRemove
 });
 
-const updateGlossaryDetail = ( glossary_detail ) => ({
-    type: types.glossaryDetailUpdate,
-    payload: glossary_detail
+const addNewGlossaryDetail = ( glossaryDetail ) => ({
+    type: types.glossariesDetailNew,
+    payload: glossaryDetail
+});
+
+const blockGlossaryDetail = ( glossaryDetail ) => ({
+    type: types.glossaryDetailBlock,
+    payload: glossaryDetail
+});
+
+const blockGlossaryDetailByStudent = ( glossaryDetailId ) => ({
+    type: types.glossaryDetailBlockByStudent,
+    payload: glossaryDetailId
 });
 
 const deleteGlossaryDetail = ( glossary_detail_id ) => ({
@@ -359,4 +381,13 @@ const deleteGlossaryDetail = ( glossary_detail_id ) => ({
 const deleteGlossariesDetail = ( glossaries_detail_keys ) => ({
     type: types.glossariesDetailDelete,
     payload: glossaries_detail_keys
+});
+
+const setCurrentGlossary = ( glossary ) => ({
+    type: types.currentGlossaryList,
+    payload: glossary
+});
+
+export const startRemoveCurrentGlossary = () => ({
+    type: types.currentGlossaryRemove
 });

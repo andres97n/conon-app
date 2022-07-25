@@ -1,14 +1,21 @@
 import Swal from "sweetalert2";
 
 import { types } from "../../types/types";
-import { changeDate, getAsignatureData, getAsignatureDetailData, getAsignatureDetailErrorMessage, getAsignatureErrorMessage, getError } from "../../helpers/admin";
 import { fetchWithToken } from "../../helpers/fetch";
+import { 
+    changeDate, 
+    getAsignatureData, 
+    getAsignatureDetailData, 
+    getAsignatureDetailErrorMessage, 
+    getAsignatureErrorMessage, 
+    getError 
+} from "../../helpers/admin";
+import { getToastMsg } from "../../helpers/abp";
+
 
 export const startLoadAsignatures = ( active ) => {
     return async (dispatch) => {
-
         try {
-            
             dispatch( startLoadingAsignature() );
             let resp_asignature;
             if ( active ) {
@@ -19,7 +26,7 @@ export const startLoadAsignatures = ( active ) => {
             const body_asignature = await resp_asignature.json();
     
             if (body_asignature.ok) {
-                dispatch( setAsignatures( changeDate( body_asignature.conon_data )));
+                dispatch( setAsignatures( body_asignature.conon_data ));
                 dispatch( endLoadingAsignature() );
             } else {
                 Swal.fire('Error', body_asignature.detail, 'error');
@@ -38,11 +45,11 @@ export const startLoadAsignatures = ( active ) => {
 
 export const startLoadAsignatureAreas = () => {
     return async (dispatch) => {
-
         try {
-            
             dispatch( startLoadingAsignature() );
-            const resp_areas = await fetchWithToken( 'school/api/knowledge-area/asignature/' );
+            const resp_areas = await fetchWithToken( 
+                'school/api/knowledge-area/asignature/' 
+            );
             const body_areas = await resp_areas.json();
     
             if (body_areas.ok) {
@@ -66,7 +73,6 @@ export const startLoadAsignatureAreas = () => {
 export const startLoadClasroomForAsignatures = ( asignature_id ) => {
     return async (dispatch) => {
         try {
-        
             const resp_asignature = await fetchWithToken( 
                 `school/api/asignature/${asignature_id}/classrooms/` 
             );
@@ -89,7 +95,6 @@ export const startLoadClasroomForAsignatures = ( asignature_id ) => {
 export const startLoadTeachersForAsignatures = ( asignature_id ) => {
     return async (dispatch) => {
         try {
-        
             const resp_asignature = await fetchWithToken( 
                 `school/api/asignature/${asignature_id}/teachers/` 
             );
@@ -112,16 +117,14 @@ export const startLoadTeachersForAsignatures = ( asignature_id ) => {
 export const startLoadAsignaturesDetailByAsignature = ( asignature_id ) => {
     return async (dispatch) => {
         try {
-            
             dispatch( startLoadingAsignature() );
             const resp_asignature_detail = await fetchWithToken( 
-                // `school/api/asignature-classroom/${asignature_id}/by-asignatures/` 
                 `school/api/asignature-classroom?asignature=${asignature_id}&state=1` 
             );
             const body_asignature_detail = await resp_asignature_detail.json();
     
             if (body_asignature_detail.ok) {
-                dispatch( setAsignaturesDetail( changeDate( body_asignature_detail.conon_data )));
+                dispatch( setAsignaturesDetail( body_asignature_detail.conon_data ));
                 dispatch( endLoadingAsignature() );
             } else {
                 Swal.fire('Error', body_asignature_detail.detail, 'error');
@@ -140,7 +143,6 @@ export const startLoadAsignaturesDetailByAsignature = ( asignature_id ) => {
 export const startLoadAsignaturesDetail = () => {
     return async (dispatch) => {
         try {
-            
             dispatch( startLoadingAsignature() );
             const resp_asignature_detail = await fetchWithToken( 
                 'school/api/asignature-classroom?state=1' 
@@ -148,7 +150,9 @@ export const startLoadAsignaturesDetail = () => {
             const body_asignature_detail = await resp_asignature_detail.json();
     
             if (body_asignature_detail.ok) {
-                dispatch( setAsignaturesDetail( changeDate( body_asignature_detail.conon_data )));
+                dispatch( setAsignaturesDetail( changeDate( 
+                    body_asignature_detail.conon_data 
+                )));
                 dispatch( endLoadingAsignature() );
             } else {
                 Swal.fire('Error', body_asignature_detail.detail, 'error');
@@ -167,7 +171,6 @@ export const startLoadAsignaturesDetail = () => {
 export const startLoadAsignaturesDetailByClassroom = ( classroom_id ) => {
     return async (dispatch) => {
         try {
-
             if ( classroom_id ) {
                 dispatch( startLoadingAsignature() );
                 const resp_asignature_detail = await fetchWithToken( 
@@ -176,7 +179,9 @@ export const startLoadAsignaturesDetailByClassroom = ( classroom_id ) => {
                 const body_asignature_detail = await resp_asignature_detail.json();
         
                 if (body_asignature_detail.ok) {
-                    dispatch( setAsignaturesDetail( changeDate( body_asignature_detail.conon_data )));
+                    dispatch( setAsignaturesDetail( changeDate( 
+                        body_asignature_detail.conon_data 
+                    )));
                     dispatch( endLoadingAsignature() );
                 } else {
                     Swal.fire('Error', body_asignature_detail.detail, 'error');
@@ -186,7 +191,6 @@ export const startLoadAsignaturesDetailByClassroom = ( classroom_id ) => {
                 dispatch( setAsignaturesDetail([]));
             }
             
-
         } catch (error) {
             Swal.fire(
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
@@ -199,7 +203,6 @@ export const startLoadAsignaturesDetailByClassroom = ( classroom_id ) => {
 export const startLoadAsignatureDetailByClassroomAndUser = ( classroom_id, user_id ) => {
     return async (dispatch) => {
         try {
-            
             if ( classroom_id && user_id ) {
                 dispatch( startLoadingAsignature() );
                 const resp_asignature_detail = await fetchWithToken( 
@@ -213,7 +216,9 @@ export const startLoadAsignatureDetailByClassroomAndUser = ( classroom_id, user_
                 const body_asignature_detail = await resp_asignature_detail.json();
         
                 if (body_asignature_detail.ok) {
-                    dispatch( setAsignaturesDetail( changeDate( body_asignature_detail.conon_data )));
+                    dispatch( setAsignaturesDetail( changeDate( 
+                        body_asignature_detail.conon_data 
+                    )));
                     dispatch( endLoadingAsignature() );
                 } else {
                     Swal.fire('Error', body_asignature_detail.detail, 'error');
@@ -234,9 +239,7 @@ export const startLoadAsignatureDetailByClassroomAndUser = ( classroom_id, user_
 
 export const startSaveAsignature = ( asignature, toast ) => {
     return async (dispatch) => {
-
         try {
-            
             const resp_asignature = await fetchWithToken( 
                 'school/api/asignature/', 
                 {
@@ -250,17 +253,10 @@ export const startSaveAsignature = ( asignature, toast ) => {
             const body_asignature = await resp_asignature.json();
 
             if ( body_asignature.ok ) {
-                
                 dispatch( addNewAsignature( 
                     getAsignatureData( asignature, body_asignature.id ))
                 );
-
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: body_asignature.message, 
-                    life: 4000 });
-
+                getToastMsg(toast, 'success', body_asignature.message );
             } else if ( body_asignature.detail ) {
                 Swal.fire(
                     'Error', 
@@ -269,7 +265,9 @@ export const startSaveAsignature = ( asignature, toast ) => {
                 );
             } else {
                 Swal.fire(
-                    'Error', `${body_asignature}, consulte con el Desarrollador.`, 'error'
+                    'Error',                    
+                    getError( body_asignature.detail, getAsignatureErrorMessage ),  
+                    'error'
                 );
             }
 
@@ -278,38 +276,25 @@ export const startSaveAsignature = ( asignature, toast ) => {
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             );
         }
-
     }
 }
 
-export const startUpdateAsignature = ( asignature, asignature_id, toast ) => {
+export const startUpdateAsignature = ( asignature, asignatureToUpdate, toast ) => {
     return async (dispatch) => {
-
         try {
             const resp_asignature = await fetchWithToken( 
-                `school/api/asignature/${asignature_id}/`, 
-                {
-                    name: asignature.name,
-                    knowledge_area: asignature.knowledge_area.id,
-                    objective: asignature.objective,
-                    observations: asignature.observations
-                }, 
+                `school/api/asignature/${asignature.id}/`, 
+                asignatureToUpdate, 
                 'PUT'  
             );
             const body_asignature = await resp_asignature.json();
 
             if ( body_asignature.ok ) {
-                
-                dispatch( updateAsignature( 
-                    getAsignatureData( asignature, asignature_id ))
+                dispatch( updateAsignature( asignature ));
+                getToastMsg(toast, 
+                    'success', 
+                    'Asignatura Actualizada Correctamente' 
                 );
-
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: 'Asignatura Actualizada Correctamente', 
-                    life: 4000 });
-                
             } else if ( body_asignature.detail ) {
                 Swal.fire(
                     'Error', 
@@ -318,7 +303,9 @@ export const startUpdateAsignature = ( asignature, asignature_id, toast ) => {
                 );
             } else {
                 Swal.fire(
-                    'Error', `${body_asignature}, consulte con el Desarrollador.`, 'error'
+                    'Error',                    
+                    getError( body_asignature.detail, getAsignatureErrorMessage ),  
+                    'error'
                 );
             }
 
@@ -327,32 +314,22 @@ export const startUpdateAsignature = ( asignature, asignature_id, toast ) => {
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             );
         }
-
     }
 } 
 
-export const startDeleteAsignature = ( asignature_id, toast ) => {
+export const startBlockAsignature = ( asignature, toast ) => {
     return async (dispatch) => {
-
         try {
-            
             const resp_asignature = await fetchWithToken(
-                `school/api/asignature/${asignature_id}/`, 
+                `school/api/asignature/${asignature.id}/block/`, 
                 {}, 
                 'DELETE' 
             );
             const body_asignature = await resp_asignature.json();
 
             if ( body_asignature.ok ) {
-                
-                dispatch( deleteAsignature( asignature_id ) );
-            
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: body_asignature.message, 
-                    life: 4000 });
-
+                dispatch( updateAsignature( asignature ) );
+                getToastMsg(toast, 'success', body_asignature.message );
             } else {
                 Swal.fire(
                     'Error', body_asignature.detail, 'error'
@@ -364,15 +341,39 @@ export const startDeleteAsignature = ( asignature_id, toast ) => {
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             );
         }
+    }
+}
 
+export const startDeleteAsignature = ( asignature_id, toast ) => {
+    return async (dispatch) => {
+        try {
+            const resp_asignature = await fetchWithToken(
+                `school/api/asignature/${asignature_id}/`, 
+                {}, 
+                'DELETE' 
+            );
+            const body_asignature = await resp_asignature.json();
+
+            if ( body_asignature.ok ) {
+                dispatch( deleteAsignature( asignature_id ) );
+                getToastMsg(toast, 'success', body_asignature.message );
+            } else {
+                Swal.fire(
+                    'Error', body_asignature.detail, 'error'
+                );  
+            }
+
+        } catch (error) {
+            Swal.fire(
+                'Error', `${error}, consulte con el Desarrollador.`, 'error'
+            );
+        }
     }
 }
 
 export const startDeleteAsignatures = ( asignature_keys, toast ) => {
     return async (dispatch) => {
-
         try {
-            
             const resp_asignature = await fetchWithToken(
                 'school/api/asignature/destroy-asignatures/', 
                 {
@@ -383,15 +384,8 @@ export const startDeleteAsignatures = ( asignature_keys, toast ) => {
             const body_asignature = await resp_asignature.json();
 
             if ( body_asignature.ok ) {
-                
                 dispatch( deleteAsignatures(asignature_keys) );
-
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: body_asignature.message, 
-                    life: 4000 });
-
+                getToastMsg(toast, 'success', body_asignature.message );
             } else {
                 Swal.fire(
                     'Error', body_asignature.detail, 'error'
@@ -403,14 +397,12 @@ export const startDeleteAsignatures = ( asignature_keys, toast ) => {
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             );
         }
-
     }
 }
 
 export const startSaveAsignatureDetail = ( asignature_detail, asignature_id, toast ) => {
     return async (dispatch) => {
-        try {
-            
+        try {   
             const resp_asignature_detail = await fetchWithToken( 
                 'school/api/asignature-classroom/', 
                 {
@@ -423,27 +415,29 @@ export const startSaveAsignatureDetail = ( asignature_detail, asignature_id, toa
             );
             const body_asignature_detail = await resp_asignature_detail.json();
 
-            if ( body_asignature_detail.ok ) {
-                
+            if ( body_asignature_detail.ok ) {   
                 dispatch( addNewAsignatureDetail( 
-                    getAsignatureDetailData( asignature_detail, body_asignature_detail.id ))
-                );
-
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: body_asignature_detail.message, 
-                    life: 4000 });
-
+                    getAsignatureDetailData( 
+                        asignature_detail, body_asignature_detail.id 
+                )));
+                getToastMsg(toast, 'success', body_asignature_detail.message );
             } else if ( body_asignature_detail.detail ) {
                 Swal.fire(
                     'Error', 
-                    getError( body_asignature_detail.detail, getAsignatureDetailErrorMessage ), 
+                    getError( 
+                        body_asignature_detail.detail, 
+                        getAsignatureDetailErrorMessage 
+                    ), 
                     'error'
                 );
             } else {
                 Swal.fire(
-                    'Error', `${body_asignature_detail}, consulte con el Desarrollador.`, 'error'
+                    'Error', 
+                    getError( 
+                        body_asignature_detail.detail, 
+                        getAsignatureDetailErrorMessage 
+                    ), 
+                    'error'
                 );
             }
 
@@ -455,27 +449,19 @@ export const startSaveAsignatureDetail = ( asignature_detail, asignature_id, toa
     }
 }
 
-export const startBlockAsignatureDetail = ( asignature_detail_id, toast ) => {
+export const startBlockAsignatureDetail = ( asignatureDetailId, toast ) => {
     return async (dispatch) => {
         try {
-            
             const resp_asignature_detail = await fetchWithToken(
-                `school/api/asignature-classroom/${asignature_detail_id}/block-asignature-classroom/`, 
+                `school/api/asignature-classroom/${asignatureDetailId}/block-asignature-classroom/`, 
                 {}, 
                 'DELETE' 
             );
             const body_asignature_detail = await resp_asignature_detail.json();
 
-            if ( body_asignature_detail.ok ) {
-                
-                dispatch( deleteAsignatureDetail( asignature_detail_id ) );
-            
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: body_asignature_detail.message, 
-                    life: 4000 });
-
+            if ( body_asignature_detail.ok ) {   
+                dispatch( deleteAsignatureDetail( asignatureDetailId ) );
+                getToastMsg(toast, 'success', body_asignature_detail.message );
             } else {
                 Swal.fire(
                     'Error', body_asignature_detail.detail, 'error'

@@ -92,6 +92,10 @@ export const PasswordChangeApp = React.memo(() => {
                             name='newPassword'
                             value={values.newPassword}
                             toggleMask
+                            promptLabel='Ingrese una contraseña'
+                            weakLabel='Débil'
+                            mediumLabel='Medio'
+                            strongLabel='Fuerte'
                             className={classNames(
                                 { 'p-invalid': !!errors['newPassword'] }
                             )}

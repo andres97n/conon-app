@@ -1,15 +1,15 @@
 
 export const acMethodologyTypes = {
     
-    acList:                      '[AC] Ac List',
-    acRemove:                    '[AC] Remove Ac',
-    acNew:                       '[AC] New Ac',
-    acUpdate:                    '[AC] Update Ac',
-    acDelete:                    '[AC] Delete Ac',
-    acBlock:                     '[AC] Block Ac',
-    acLoad:                      '[AC] Ac Load',
-    acStop:                      '[AC] Ac Stop',
-    currentAcRemove:             '[AC] Remove Current Ac',
+    acList:                     '[AC] Ac List',
+    acRemove:                   '[AC] Remove Ac',
+    acNew:                      '[AC] New Ac',
+    acUpdate:                   '[AC] Update Ac',
+    acDelete:                   '[AC] Delete Ac',
+    acBlock:                    '[AC] Block Ac',
+    acLoad:                     '[AC] Ac Load',
+    acStop:                     '[AC] Ac Stop',
+    currentAcRemove:            '[AC] Remove Current Ac',
 
     teamAcList:                 '[TEAM AC] Team Ac List',
     teamAcRemove:               '[TEAM AC] Remove Team Ac List',

@@ -22,7 +22,10 @@ export const TeacherTopicEditMainApp = React.memo(({
 }) => {
 
   const dispatch = useDispatch();
-  const { currentMethodology, currentTopic } = useSelector(state => state.dashboard.topic);
+  const { 
+    currentMethodology, 
+    currentTopic 
+  } = useSelector(state => state.dashboard.topic);
 
   const handleConfirmBackToTable = () => {
     confirmDialog({
@@ -84,7 +87,7 @@ export const TeacherTopicEditMainApp = React.memo(({
       </div>
       {
         (
-          !currentMethodology || 
+          Object.keys(currentMethodology).length === 0 || 
           Object.keys(currentTopic).length === 0
         )
         ? (

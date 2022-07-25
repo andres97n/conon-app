@@ -106,7 +106,7 @@ export const TeacherTopicActionBodyApp = React.memo(({
                 />
                 <Button 
                   icon="fas fa-eye" 
-                  tooltip='Visualizar Tópico's
+                  tooltip='Visualizar Tópico'
                   tooltipOptions={{position:'bottom'}}
                   className="p-button-rounded p-button-warning mr-2" 
                   onClick={() => handleShowEditTopic(topic)} 

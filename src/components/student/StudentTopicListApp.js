@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Badge } from 'primereact/badge';
 import { Tag } from 'primereact/tag';
+import { ScrollPanel } from 'primereact/scrollpanel';
+import { InputText } from 'primereact/inputtext';
 
 import { getMethodologyAbrevNameType } from '../../helpers/topic';
 import { changeObjectFullDate } from '../../helpers/topic/student/ac/acCoordinator';
@@ -13,6 +15,20 @@ export const StudentTopicListApp = React.memo(({
     activeTopics,
     handleSelectTopic,
 }) => {
+
+    const [filteredTopics, setFilteredTopics] = useState([]);
+
+    const searchTopics = (event) => {
+        let _filteredTerms;
+        if (!event.trim().length) {
+        _filteredTerms = [ ...activeTopics ];
+        } else {
+        _filteredTerms = activeTopics.filter( topic => (
+            topic.title.toLowerCase().includes(event.toLowerCase())
+        ));
+        }
+        setFilteredTopics(_filteredTerms);
+    }
     
     const titleCardTemplate = ( title, type ) => (
         <React.Fragment>
@@ -52,12 +68,38 @@ export const StudentTopicListApp = React.memo(({
         </React.Fragment>
     );
 
+    useEffect(() => {
+        if (activeTopics.length > 0 && filteredTopics.length === 0) {
+          setFilteredTopics(activeTopics);
+        }
+    }, [activeTopics, filteredTopics]);
+
   return (
-    <>
-        {
-            activeTopics.map((topic, index) => (
-                <div className='col-4' key={index}>
-                    <div className='grid p-fluid'>
+    <ScrollPanel
+        className="custombar1" 
+        style={{ 
+            width: '100%', 
+            height: activeTopics.length === 0 ? '50px' : '550px' 
+        }}
+    >
+        <div className='grid p-fluid'>
+            <div className='col-12'>
+                <div className='center-inside'>
+                    <div className='col-6'>
+                        <span className="block mt-2 md:mt-0 p-input-icon-left">
+                        <i className="fas fa-search" />
+                        <InputText
+                            type="search" 
+                            placeholder='Buscar Tópico'
+                            onInput={(e) => searchTopics(e.target.value)} 
+                        />
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {
+                filteredTopics.map((topic, index) => (
+                    <div className='col-4' key={index}>
                         <div className='col-12' >
                             <Card
                                 title={() => titleCardTemplate(topic.title, topic.type)} 
@@ -73,9 +115,9 @@ export const StudentTopicListApp = React.memo(({
                             </Card>
                         </div>
                     </div>
-                </div>
-            ))
-        }
-    </>
+                ))
+            }
+        </div>
+    </ScrollPanel>
   );
 });

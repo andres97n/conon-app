@@ -36,6 +36,35 @@ export const startLoadFeaturedInformationsSecretaryAcList = ( teamDetailId ) => 
   }
 }
 
+export const startLoadCurrentFeaturedInformationsSecretaryAcByMember = ( 
+  teamDetailId, 
+  memberId 
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch( startLoadingFeaturedInformationSecretaryAc() );
+      const respSecretaryInformationAc = await fetchWithToken( 
+        `ac-roles/api/path/featured-information-secretary/current-team-information/${teamDetailId}/${memberId}/` 
+      );
+      const bodySecretaryInformationAc = await respSecretaryInformationAc.json();
+
+      if (bodySecretaryInformationAc.ok) {
+        dispatch( setFeaturedInformationSecretaryAcList( 
+          bodySecretaryInformationAc.conon_data
+        ));
+        dispatch( endLoadingFeaturedInformationSecretaryAc() );
+      } else {
+        Swal.fire('Error', bodySecretaryInformationAc.detail, 'error');
+      }
+
+    } catch (error) {
+      Swal.fire(
+        'Error', `${error}, consulte con el Desarrollador.`, 'error'
+      );
+    }
+  }
+}
+
 export const startSaveFeaturedInformationSecretaryAc = ( informationAc, toast ) => {
   return async ( dispatch ) => {
     try {

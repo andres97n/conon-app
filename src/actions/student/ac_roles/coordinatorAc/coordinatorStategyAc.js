@@ -107,7 +107,7 @@ const startLoadingCoordinatorStrategyAc = () => ({
 });
 
 const endLoadingCoordinatorStrategyAc = () => ({
-  type: acRolesTypes.acActivityDescriptionSpokesmanStop
+  type: acRolesTypes.acCoordinatorStrategyStop
 });
 
 const addNewCoordinatorStrategyAc = ( strategyAc ) => ({

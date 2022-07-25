@@ -4,7 +4,13 @@ import { methodologyTypes } from "../../types/methodologyTypes";
 import { fetchWithToken } from "../../helpers/fetch";
 import { changeDate, getError } from "../../helpers/admin";
 import { getAbpData, getAbpErrorMessage, getToastMsg } from "../../helpers/abp";
-import { endLoadingTopics, setCurrentMethodology, startLoadingTopics } from "../admin/topic";
+import { 
+    endLoadingCurrentMethodology, 
+    endLoadingTopics, 
+    setCurrentMethodology, 
+    startLoadingCurrentMethodology, 
+    startLoadingTopics 
+} from "../admin/topic";
 
 export const startLoadAbpList = () => {
     return async (dispatch) => {
@@ -52,6 +58,32 @@ export const startLoadCurrentAbp = ( topicId ) => {
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             );
             dispatch( endLoadingTopics() );
+        }
+    }
+}
+
+export const startLoadStudentEvaluationAbp = ( topicId ) => {
+    return async (dispatch, getState) => {
+        try {
+            const { auth } = getState();
+            const { uid } = auth;
+            dispatch( startLoadingCurrentMethodology() );
+            const resp_abp = await fetchWithToken( 
+                `abp/api/path/abp/student-evaluation-abp/${topicId}/${uid}/` 
+            );
+            const body_abp = await resp_abp.json();
+    
+            if (body_abp.ok) {
+                dispatch( setCurrentMethodology( body_abp.conon_data ));
+                dispatch( endLoadingCurrentMethodology() );
+            } else {
+                Swal.fire('Error', body_abp.detail, 'error');
+                }
+
+        } catch (error) {
+            Swal.fire(
+                'Error', `${error}, consulte con el Desarrollador.`, 'error'
+            );
         }
     }
 }

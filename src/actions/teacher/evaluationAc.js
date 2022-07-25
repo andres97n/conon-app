@@ -43,10 +43,32 @@ export const startLoadStudentEvaluationDetailAbpList = ( rubricId, teamDetailAcI
       const bodyEvaluationAc = await respEvaluationAc.json();
 
       if (bodyEvaluationAc.ok) {
-        dispatch( setEvaluationDetailAcList((
-            bodyEvaluationAc.conon_data
-        )));
+        dispatch( setEvaluationDetailAcList(( bodyEvaluationAc.conon_data )));
         dispatch( endLoadingEvaluationDetailAc() );
+      } else {
+        Swal.fire('Error', bodyEvaluationAc.detail, 'error');
+      }
+
+    } catch (error) {
+      Swal.fire(
+        'Error', `${error}, consulte con el Desarrollador.`, 'error'
+      );
+    }
+  }
+}
+
+export const startLoadStudentEvaluationAcByAcAndTeamDetail = ( acId, teamDetailAcId ) => {
+  return async (dispatch) => {
+    try {
+      dispatch( startLoadingEvaluationAc() );
+      const respEvaluationAc = await fetchWithToken( 
+        `ac/api/path/student-evaluation-ac/current-student-evaluation-by-ac/${acId}/${teamDetailAcId}/` 
+      );
+      const bodyEvaluationAc = await respEvaluationAc.json();
+
+      if (bodyEvaluationAc.ok) {
+        dispatch( setEvaluationAcList(( bodyEvaluationAc.conon_data )));
+        dispatch( endLoadingEvaluationAc() );
       } else {
         Swal.fire('Error', bodyEvaluationAc.detail, 'error');
       }

@@ -111,6 +111,26 @@ export const startLoadTeamAcWithStudents = ( acId ) => {
   }
 }
 
+export const startLoadSecretarysTeam = async ( acId ) => {
+  try {
+    const resp_team_ac = await fetchWithToken( 
+      `ac/api/path/team-detail-ac/secretary-team/${acId}/` 
+    );
+    const body_team_ac = await resp_team_ac.json();
+
+    if (body_team_ac.ok) {
+      return body_team_ac.conon_data;
+    } else {
+      Swal.fire('Error', body_team_ac.detail, 'error');
+    }
+
+  } catch (error) {
+    Swal.fire(
+      'Error', `${error}, consulte con el Desarrollador.`, 'error'
+    );
+  }
+}
+
 export const startSaveTeamAc = ( teamAc, teamDetailsAc, toast ) => {
   return async ( dispatch ) => {
     try {
@@ -268,6 +288,8 @@ export const startSetTeamFinishedWork = ( teamDetailId ) => {
 
       if ( body_team_ac.ok ) {
         if (body_team_ac.conon_data) {
+          dispatch( setTeamFinished() );
+        } else {
           dispatch( setTeamFinished() );
         }
       } else if (body_team_ac.detail) {

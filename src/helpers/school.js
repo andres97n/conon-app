@@ -273,3 +273,10 @@ export const setValuesEvaluation = (
     });
     return finalValues
 }
+
+export const getTeachersForArea = ( teachers, teacherIdExclude ) => {
+    let newTeachers = teachers.filter( teacher => teacher.id !== teacherIdExclude );
+    return newTeachers.map(
+        teacher => (teacher.id)
+    );
+}

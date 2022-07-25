@@ -38,11 +38,9 @@ export const TopicAssignAcRoleGroupApp = React.memo(({
   const handleSaveRoleGroup = () => {
     const newTeamAc = {
       ac: currentAc.id,
-      team_state: 1,
       active: true,
       observations: ''
     };
-    console.log(newTeamAc);
     const newTeamDetailsAc = getTeamDetailsAc( moderatorSwitch );
     handleSetShowBackMessage(true);
     handleSetBackMessage(

@@ -4,10 +4,10 @@ import { TabView,TabPanel } from 'primereact/tabview';
 
 import { TeacherTopicEditViewMainInfo } from './TeacherTopicEditViewMainInfo';
 import { TeacherTopicEditViewMainProblemApp } from './TeacherTopicEditViewMainProblemApp';
-
-import { getMethodologyTypeTabs } from '../../../../helpers/topic/table/topicTableEdit';
 import { TeacherTopicEditViewMainFinalizeApp } from './TeacherTopicEditViewMainFinalizeApp';
 import { TeacherTopicEditViewFinalizeDuaApp } from './dua/TeacherTopicEditViewFinalizeDuaApp';
+
+import { getMethodologyTypeTabs } from '../../../../helpers/topic/table/topicTableEdit';
 
 
 export const TeacherTopicEditBodyApp = React.memo(({

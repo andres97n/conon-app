@@ -12,17 +12,11 @@ import { startLoadDuaByTopic } from '../../actions/teacher/dua';
 import { startLoadCurrentAc } from '../../actions/teacher/ac';
 import { startLoadTopicsListByStudent } from '../../actions/admin/topic';
 
-// TODO: Aplicar el history de routee DOM, así como el useLocation para recuperar los valores
-//  del enlace, de esta manera guardar la informcaión del tópico.
-
-// TODO: Cuando el id se extraiga del url se deberá ponerlo al estado y esta manera siga el 
-//  transcurso normal, cargarlo mediante el useeffect.
 
 export const MethodologyStudentScreen = ({ history }) => {
 
   // const location = useLocation();
   const dispatch = useDispatch();
-  const { uid } = useSelector(state => state.auth);
   const { 
     topics, currentMethodology, loading, loadingMethodology 
   } = useSelector(state => state.dashboard.topic);
@@ -30,8 +24,8 @@ export const MethodologyStudentScreen = ({ history }) => {
   const [isTopicSelected, setIsTopicSelected] = useState(false);
 
   const handleLoadActiveTopics = useCallback(
-    ( uid ) => {
-      dispatch( startLoadTopicsListByStudent(uid) );
+    () => {
+      dispatch( startLoadTopicsListByStudent());
     }, [dispatch],
   );
 
@@ -49,20 +43,21 @@ export const MethodologyStudentScreen = ({ history }) => {
   }, [dispatch]);
   
   const backStudentTopicList = useCallback( () => {
-    console.log('limpia');
     setSelectedTopic({});
     setIsTopicSelected(false);
     // history.push('');
   }, [setSelectedTopic, setIsTopicSelected]);
 
   useEffect(() => {
-    if (uid) {
-      handleLoadActiveTopics( uid );
-    }
-  }, [uid, handleLoadActiveTopics]);
+    handleLoadActiveTopics();
+  }, [handleLoadActiveTopics]);
 
   if (loading) {
-    <ProgressSpinner />
+    return (
+      <div className='grid p-fluid'>
+        <ProgressSpinner />
+      </div>
+    );
   }
 
   return (

@@ -5,7 +5,9 @@ import { Message } from 'primereact/message';
 import { Panel } from 'primereact/panel';
 
 import { EmptyContentScreen } from '../../../../ui/EmptyContentScreen';
-import { StudentAcSecretarySendInfoDetailApp } from './StudentAcSecretarySendInfoDetailApp';
+import { 
+  StudentAcSecretarySendInfoDetailApp 
+} from './StudentAcSecretarySendInfoDetailApp';
 
 import { 
   startLoadCurrentTeamAc, 
@@ -15,7 +17,9 @@ import {
 
 export const StudentAcSecretarySendInfoFormApp = React.memo(({
   acId,
-  userId
+  userId,
+  teamDetailAc,
+  toast
 }) => {
   
   const dispatch = useDispatch();
@@ -107,6 +111,8 @@ export const StudentAcSecretarySendInfoFormApp = React.memo(({
                   >
                     <StudentAcSecretarySendInfoDetailApp 
                       student={student}
+                      teamDetailAc={teamDetailAc}
+                      toast={toast}
                     />
                   </Panel>
                 )

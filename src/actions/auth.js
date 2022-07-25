@@ -80,7 +80,6 @@ export const startLogin = ( username, password ) => {
 
 export const startLogout = () => {
     return async ( dispatch, getState ) => {
-
         const { auth } = getState();
         await reloadToken();
         const resp_logout = await fetchWithToken(
@@ -90,6 +89,7 @@ export const startLogout = () => {
             },
             'POST'
         );
+
         if (resp_logout.status === 204) {
             localStorage.clear();
             if (auth.type === 1 || auth.type === 2) {
@@ -99,8 +99,6 @@ export const startLogout = () => {
                 }
             }
             dispatch( logout() );
-            // window.location.reload();
-
         } else {
             dispatch( checkingFinish() );
         }

@@ -68,7 +68,9 @@ export const TeacherTopicScreen = () => {
 
   if (!schoolPeriodId) {
     return (
-      <EmptyContentScreen />
+      <div className='grid p-fluid'>
+        <EmptyContentScreen />
+      </div>
     );
   }
 

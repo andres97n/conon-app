@@ -38,7 +38,7 @@ export const conversationReducer = ( state = initialState, action ) => {
     case types.conversationNew:
       return {
         ...state,
-        conversations: [ ...state.conversations, action.payload ]
+        conversations: [ action.payload, ...state.conversations ]
       }
 
     case types.conversationBlock:

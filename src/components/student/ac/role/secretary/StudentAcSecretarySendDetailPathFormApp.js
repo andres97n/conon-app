@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import classNames from 'classnames';
 
 import { Button } from 'primereact/button';
@@ -6,14 +7,42 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Message } from 'primereact/message';
 
+import { EmptyContentScreen } from '../../../../ui/EmptyContentScreen';
+
+import { 
+  startLoadCurrentFeaturedInformationsSecretaryAcByMember, 
+  startRemoveFeaturedInformationSecretaryAcList 
+} from '../../../../../actions/student/ac_roles/secretaryAc/featuredInformationSecretaryAc';
+
 
 export const StudentAcSecretarySendDetailPathFormApp = React.memo(({
   acContainer,
+  secretaryId,
+  memberId,
   errors,
   setFieldValue,
 }) => {
-  
+
+  const dispatch = useDispatch();
+  const { 
+    secretaryFeaturedInformations,
+    loadingSecretaryFeaturedInformation
+  } = useSelector( state => state.dashboard.secretaryAc );
   const [itemCount, setItemCount] = useState(1);
+
+  const handleLoadFeaturedInformationsFromMember = useCallback(
+    ( secretaryId, memberId ) => {
+      dispatch( startLoadCurrentFeaturedInformationsSecretaryAcByMember( 
+        secretaryId, memberId 
+      ));
+    }, [dispatch],
+  );
+
+  const handleRemoveFeaturedInformationsFromMember = useCallback(
+    () => {
+      dispatch( startRemoveFeaturedInformationSecretaryAcList() );
+    }, [dispatch],
+  );
 
   const handleAddItem = () => {
     setFieldValue('secretaryPaths', [
@@ -40,6 +69,33 @@ export const StudentAcSecretarySendDetailPathFormApp = React.memo(({
     return error;
   };
 
+  useEffect(() => {
+    if (secretaryId && memberId) {
+      handleLoadFeaturedInformationsFromMember( secretaryId, memberId );
+    }
+  
+    return () => {
+      handleRemoveFeaturedInformationsFromMember();    
+    }
+  }, [
+    secretaryId, 
+    memberId, 
+    handleLoadFeaturedInformationsFromMember,
+    handleRemoveFeaturedInformationsFromMember
+  ]);
+
+  useEffect(() => {
+    if (secretaryFeaturedInformations.length > 0) {
+      setItemCount(secretaryFeaturedInformations.length + 1);
+    }
+  }, [secretaryFeaturedInformations]);
+  
+  if (loadingSecretaryFeaturedInformation) {
+    return (
+      <EmptyContentScreen />
+    );
+  }
+
   return (
     <>
       {
@@ -64,6 +120,7 @@ export const StudentAcSecretarySendDetailPathFormApp = React.memo(({
                       id={`secretaryPaths[${index}].item`}
                       name={`secretaryPaths[${index}].item`}
                       value={data.item}
+                      disabled={itemCount > 3}
                       className={classNames({ 
                         'p-invalid': (errors['secretaryPaths'] && 
                           errors['secretaryPaths'][index]) &&
@@ -98,6 +155,7 @@ export const StudentAcSecretarySendDetailPathFormApp = React.memo(({
                       name={`secretaryPaths[${index}].description`}
                       value={data.description}
                       required rows={3} cols={20}
+                      disabled={itemCount > 3}
                       className={classNames({ 
                         'p-invalid': (errors.secretaryPaths && 
                           errors.secretaryPaths[index]) &&

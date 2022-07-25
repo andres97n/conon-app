@@ -3,13 +3,18 @@ import { DateTime } from "luxon";
 
 import { types } from "../../types/types";
 import { fetchWithToken } from "../../helpers/fetch";
-import { endLoadingUi, setMessagesCount, startLoadingUi } from "../ui";
+import { 
+  endLoadingUi, 
+  setMessagesCount, 
+  startLoadingUi 
+} from "../ui";
 import {  
   getConversationDetailErrorMessage, 
   getConversationErrorMessage, 
 } from "../../helpers/conversation/conversationDb";
 import { getError } from "../../helpers/admin";
 import { getToastMsg } from "../../helpers/abp";
+
 
 export const startLoadConversationList = ( userId, search ) => {
   return async (dispatch) => {
@@ -29,7 +34,6 @@ export const startLoadConversationList = ( userId, search ) => {
 
       if (body_conversation.ok) {
         dispatch( setConversationList(
-          // getConversationsWithExcludeOwner( userId, body_conversation.conon_data )
           body_conversation.conon_data
         ));
         dispatch( endLoadingConversation() );
@@ -97,12 +101,14 @@ export const startLoadConversationDetailList = ( conversationId ) => {
   }
 }
 
-export const startLoadConversationUsersListByStudent = ( userId, schoolPeriodId ) => {
-  return async (dispatch) => {
+export const startLoadConversationUsersListByStudent = ( schoolPeriodId ) => {
+  return async (dispatch, getState) => {
     try {
+      const { auth } = getState();
+      const { uid } = auth; 
       dispatch( startLoadingConversation() );
       const resp_conversation = await fetchWithToken( 
-        `user/api/path/student/student-conversation/${userId}/${schoolPeriodId}/` 
+        `user/api/path/student/student-conversation/${uid}/${schoolPeriodId}/` 
         // `user/api/path/student/student-conversation/27/${schoolPeriodId}/` 
       );
       const body_conversation = await resp_conversation.json();
@@ -124,12 +130,14 @@ export const startLoadConversationUsersListByStudent = ( userId, schoolPeriodId 
   }
 }
 
-export const startLoadConversationUsersListByTeacher = ( userId, schoolPeriodId ) => {
-  return async (dispatch) => {
+export const startLoadConversationUsersListByTeacher = ( schoolPeriodId ) => {
+  return async (dispatch, getState) => {
     try {
-      dispatch( startLoadingConversation() );
+      const { auth } = getState();
+      const { uid } = auth; 
       const resp_conversation = await fetchWithToken( 
-        `user/api/path/teacher/teacher-conversation/${userId}/${schoolPeriodId}/` 
+        `user/api/path/conversation/available-user-conversation/${uid}/${schoolPeriodId}/` 
+        // `user/api/path/teacher/teacher-conversation/${userId}/${schoolPeriodId}/` 
         // `user/api/path/student/student-conversation/27/${schoolPeriodId}/` 
       );
       const body_conversation = await resp_conversation.json();
@@ -138,7 +146,6 @@ export const startLoadConversationUsersListByTeacher = ( userId, schoolPeriodId 
         dispatch( setConversationUsersList(
           body_conversation.conon_data
         ));
-        dispatch( endLoadingConversation() );
       } else {
         Swal.fire('Error', body_conversation.detail, 'error');
       }
@@ -151,12 +158,14 @@ export const startLoadConversationUsersListByTeacher = ( userId, schoolPeriodId 
   }
 }
 
-export const startLoadCurrentConversationUsersList = ( userId ) => {
-  return async (dispatch) => {
+export const startLoadCurrentConversationUsersList = () => {
+  return async (dispatch, getState) => {
     try {
+      const { auth } = getState();
+      const { uid } = auth; 
       dispatch( startLoadingConversation() );
       const resp_conversation = await fetchWithToken( 
-        `user/api/path/conversation/user-current-conversation/${userId}/` 
+        `user/api/path/conversation/user-current-conversation/${uid}/` 
       );
       const body_conversation = await resp_conversation.json();
 
@@ -177,9 +186,11 @@ export const startLoadCurrentConversationUsersList = ( userId ) => {
   }
 }
 
-export const startSaveConversation = ( conversation, conversationDetail, name) => {
-  return async ( dispatch ) => {
+export const startSaveConversation = ( conversation, conversationDetail, secondUser) => {
+  return async ( dispatch, getState ) => {
     try {
+      const { auth } = getState();
+      const { name } = auth; 
       const resp_conversation = await fetchWithToken( 
         'user/api/conversation/', conversation, 'POST'  
       );
@@ -187,19 +198,21 @@ export const startSaveConversation = ( conversation, conversationDetail, name) =
 
       if ( body_conversation.ok ) {
         const newConversation = { 
+          ...conversation,
           id: body_conversation.id,
-          second_user: {
-            id: conversation.second_user,
+          first_user: {
+            id: conversation.first_user,
             name
           },
-          ...conversation 
+          second_user: secondUser,
+          created_at: new DateTime.now(),
+          updated_at: new DateTime.now(),
         };  
         dispatch( addNewConversation( newConversation ));
         dispatch( setCurrentConversation( newConversation ) );
         dispatch( startSaveConversationDetail( 
           body_conversation.id, conversationDetail
         ));
-          
       } else if ( body_conversation.detail ) {
         Swal.fire(
           'Error',
@@ -231,7 +244,7 @@ export const startBlockConversation = ( conversationId, toast ) => {
 
       if ( body_conversation.ok ) {
         dispatch( blockConversation( conversationId ));
-        getToastMsg( toast, 'error', body_conversation.message );                
+        getToastMsg( toast, 'success', body_conversation.message );                
       } else if ( body_conversation.detail ) {
         Swal.fire( 'Error', body_conversation.detail, 'error' );
       } 

@@ -1,7 +1,6 @@
 import { fetchWithToken } from "./fetch";
 
 export const getUserErrorMessage = ( detail ) => {
-    console.log(detail);
     if ( detail.username ) {
         return detail.username[0]
     } else if ( detail.email ) {
@@ -15,7 +14,6 @@ export const getUserErrorMessage = ( detail ) => {
     } else {
         return 'Error, consulte con el Administrador.';
     }
-
 }
 
 export const saveUser = async ( data, person_id, type ) => {
@@ -24,7 +22,7 @@ export const saveUser = async ( data, person_id, type ) => {
         person: person_id,
         username: data.username,
         email: data.email,
-        password: Math.random().toString(36).substr(2, 8),
+        password: data.password,
         type: type
     }
 

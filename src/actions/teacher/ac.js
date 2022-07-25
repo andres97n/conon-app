@@ -5,7 +5,11 @@ import { getAcErrorMessage } from "../../helpers/ac";
 import { changeDate, getError } from "../../helpers/admin";
 import { fetchWithToken } from "../../helpers/fetch";
 import { acMethodologyTypes } from "../../types/acMethodologyTypes";
-import { setCurrentMethodology } from "../admin/topic";
+import { 
+  endLoadingCurrentMethodology, 
+  setCurrentMethodology, 
+  startLoadingCurrentMethodology 
+} from "../admin/topic";
 
 export const startLoadAcList = () => {
   return async (dispatch) => {
@@ -39,6 +43,32 @@ export const startLoadCurrentAc = ( topicId ) => {
       if (body_ac.ok) {
         dispatch( setCurrentMethodology( body_ac.conon_data[0] ));
         dispatch( endLoadingAc() );
+      } else {
+        Swal.fire('Error', body_ac.detail, 'error');
+      }
+
+    } catch (error) {
+      Swal.fire(
+        'Error', `${error}, consulte con el Desarrollador.`, 'error'
+      );
+    }
+  }
+}
+
+export const startLoadStudentEvaluationAc = ( topicId ) => {
+  return async (dispatch, getState) => {
+    try {
+      const { auth } = getState();
+      const { uid } = auth;
+      dispatch( startLoadingCurrentMethodology() );
+      const resp_ac = await fetchWithToken( 
+        `ac/api/path/ac/student-evaluation-ac/${topicId}/${uid}/` 
+      );
+      const body_ac = await resp_ac.json();
+
+      if (body_ac.ok) {
+        dispatch( setCurrentMethodology( body_ac.conon_data[0] ));
+        dispatch( endLoadingCurrentMethodology() );
       } else {
         Swal.fire('Error', body_ac.detail, 'error');
       }

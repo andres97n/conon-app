@@ -33,6 +33,31 @@ export const startLoadProblemResolutionGroupAc = ( teamId ) => {
   }
 }
 
+export const startLoadProblemResolutionGroupByTeamDetailAc = ( teamDetailAc ) => {
+  return async (dispatch) => {
+    try {
+      dispatch( startLoadingProblemResolutionGroupAc() );
+      const respProblemResolutionAc = await fetchWithToken( 
+        `ac-roles/api/problem-resolution-group-ac/${teamDetailAc}/by-team-detail` 
+      );
+      const bodyProblemResolutionAc = await respProblemResolutionAc.json();
+
+      if (bodyProblemResolutionAc.ok) {
+        dispatch( setProblemResolutionGroupAcList( bodyProblemResolutionAc.conon_data));
+        dispatch( endLoadingProblemResolutionGroupAc() );
+      } else {
+        Swal.fire('Error', bodyProblemResolutionAc.detail, 'error');
+      }
+
+    } catch (error) {
+      Swal.fire(
+        'Error', `${error}, consulte con el Desarrollador.`, 'error'
+      );
+    }
+  }
+}
+
+
 export const startSaveProblemResolutionGroupAc = ( problemResolution, toast ) => {
   return async ( dispatch ) => {
     try {

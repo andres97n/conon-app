@@ -1,40 +1,43 @@
 
 import Swal from "sweetalert2";
-import { changeAreaType, changeDate, getAreaData, getAreaErrorMessage, getError } from "../../helpers/admin";
 
-import { fetchWithToken } from "../../helpers/fetch";
 import { types } from "../../types/types";
+import { getToastMsg } from "../../helpers/abp";
+import { fetchWithToken } from "../../helpers/fetch";
+import { 
+    getAreaData, 
+    getAreaErrorMessage, 
+    getError 
+} from "../../helpers/admin";
+
 
 export const startLoadAreas = () => {
     return async (dispatch) => {
-
         try {
             dispatch( startLoadingArea() );
             const resp_area = await fetchWithToken( 'school/api/knowledge-area/' );
             const body_area = await resp_area.json();
     
             if (body_area.ok) {
-                dispatch( setAreas( changeDate(changeAreaType(body_area.conon_data)) ) );
+                dispatch( setAreas( body_area.conon_data ) );
                 dispatch( endLoadingArea() );
             } else {
                 Swal.fire('Error', body_area.detail, 'error');
                 dispatch( endLoadingArea() );
             }
+
         } catch (error) {
             Swal.fire(
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             );
             dispatch( endLoadingArea() );
         }
-
     }
 }
 
 export const startLoadTeachersByArea = ( area_id ) => {
     return async (dispatch) => {
-
         try {
-            
             dispatch( startLoadingArea() );
             let resp_area_teachers;
             if ( area_id ) {
@@ -49,7 +52,6 @@ export const startLoadTeachersByArea = ( area_id ) => {
             const body_area_teachers = await resp_area_teachers.json();
 
             if ( body_area_teachers.ok ) {
-                
                 if ( body_area_teachers.message ) {
                     dispatch( setTeachersByArea([]) );
                     dispatch( endLoadingArea() );
@@ -57,7 +59,6 @@ export const startLoadTeachersByArea = ( area_id ) => {
                     dispatch( setTeachersByArea(body_area_teachers.conon_data) );
                     dispatch( endLoadingArea() );
                 }
-
             } else {
                 Swal.fire('Error', body_area_teachers.detail, 'error');
                 dispatch( endLoadingArea() );
@@ -69,14 +70,12 @@ export const startLoadTeachersByArea = ( area_id ) => {
             );
             dispatch( endLoadingArea() );
         }
-
     }
 }
 
 export const startLoadNewTeacherForArea = ( area_id ) => {
     return async (dispatch) => {
         try {
-            
             dispatch( startLoadingArea() );
             const resp_area_teachers = await fetchWithToken( 
                 `school/api/knowledge-area/${area_id}/new-teachers/` 
@@ -84,7 +83,6 @@ export const startLoadNewTeacherForArea = ( area_id ) => {
             const body_area_teachers = await resp_area_teachers.json();
 
             if ( body_area_teachers.ok ) {
-                
                 if ( body_area_teachers.message ) {
                     dispatch( setTeachersByArea([]) );
                     dispatch( endLoadingArea() );
@@ -92,7 +90,6 @@ export const startLoadNewTeacherForArea = ( area_id ) => {
                     dispatch( setTeachersByArea(body_area_teachers.conon_data) );
                     dispatch( endLoadingArea() );
                 }
-
             } else {
                 Swal.fire('Error', body_area_teachers.detail, 'error');
                 dispatch( endLoadingArea() );
@@ -109,9 +106,7 @@ export const startLoadNewTeacherForArea = ( area_id ) => {
 
 export const startLoadCoordinators = () => {
     return async (dispatch) => {
-
         try {
-            
             dispatch( startLoadingArea() );
             const resp_coordinator = await fetchWithToken( 
                 'user/api/teacher/get_coordinators/' 
@@ -119,10 +114,8 @@ export const startLoadCoordinators = () => {
             const body_coordinator = await resp_coordinator.json();
 
             if ( body_coordinator.ok ) {
-                
                 dispatch( setCoordinators(body_coordinator.conon_data) );
                 dispatch( endLoadingArea() );
-
             } else {
                 Swal.fire('Error', body_coordinator.detail, 'error');
                 dispatch( endLoadingArea() );
@@ -134,15 +127,12 @@ export const startLoadCoordinators = () => {
             );
             dispatch( endLoadingArea() );
         }
-
     }
 }
 
 export const startSaveArea = ( area, toast ) => {
     return async ( dispatch ) => {
-
         try {
-
             const resp_area = await fetchWithToken( 
                 'school/api/knowledge-area/', 
                 {
@@ -159,12 +149,7 @@ export const startSaveArea = ( area, toast ) => {
 
             if ( body_area.ok ) {
                 dispatch( addNewArea( getAreaData( area, body_area.id ) ));
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: 'Área de Conocimiento Creada Correctamente', 
-                    life: 4000 });
-                
+                getToastMsg(toast, 'success', body_area.message );
             } else if ( body_area.detail ) {
                 Swal.fire(
                     'Error', 
@@ -173,7 +158,9 @@ export const startSaveArea = ( area, toast ) => {
                 );
             } else {
                 Swal.fire(
-                    'Error', `${body_area}, consulte con el Desarrollador.`, 'error'
+                    'Error', 
+                    getError( body_area.detail, getAreaErrorMessage ),  
+                    'error'
                 );
             }
 
@@ -182,41 +169,26 @@ export const startSaveArea = ( area, toast ) => {
                 'Error', `${error}, consulte con el Desarrollador`, 'error'
             );
         }
-
     }
 }
 
-// TODO: Verificar si es que existe una mejor manera de recuperar 
-//  los id CORRECTOS de los autocompletes a la hora de actualizar
-
-export const startUpdateArea = ( area, area_id, toast ) => {
+export const startUpdateArea = ( area, areaToUpdate, toast ) => {
     return async (dispatch) => {
-
         try {
-            
             const resp_area = await fetchWithToken( 
-                `school/api/knowledge-area/${area_id}/`, 
-                {
-                    name: area.name,
-                    coordinator: area.coordinator.id,
-                    sub_coordinator: area.sub_coordinator.id,
-                    objective: area.objective,
-                    observations: area.observations
-                }, 
+                `school/api/knowledge-area/${area.id}/`, 
+                areaToUpdate, 
                 'PUT'  
             );
             const body_area = await resp_area.json();
 
             if ( body_area.ok ) {
-
-                dispatch( updateArea( getAreaData( area, area_id ) ));
-
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: 'Área de Conocimiento Actualizada Correctamente', 
-                    life: 4000 });
-                
+                dispatch( updateArea( area ));
+                getToastMsg(
+                    toast, 
+                    'success',
+                    'Área de Conocimiento Actualizada Correctamente'
+                );
             } else if ( body_area.detail ) {
                 Swal.fire(
                     'Error', 
@@ -225,7 +197,9 @@ export const startUpdateArea = ( area, area_id, toast ) => {
                 );
             } else {
                 Swal.fire(
-                    'Error', `${body_area}, consulte con el Desarrollador.`, 'error'
+                    'Error', 
+                    getError( body_area.detail, getAreaErrorMessage ),  
+                    'error'
                 );
             }
 
@@ -234,15 +208,56 @@ export const startUpdateArea = ( area, area_id, toast ) => {
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             );
         }
+    }
+}
 
+export const startUpdateAreaWithTeachers = ( areaId, area, teacherId, data, toast ) => {
+    return async (dispatch) => {
+        try {
+            const resp_area = await fetchWithToken( 
+                `school/api/knowledge-area/${areaId}/`, area, 'PUT'  
+            );
+            const body_area = await resp_area.json();
+
+            if ( body_area.ok ) {
+                dispatch( updateArea( getAreaData( 
+                    { 
+                        ...area, 
+                        coordinator: data.coordinator,
+                        sub_coordinator: data.sub_coordinator 
+                    }, areaId 
+                ) ));
+                dispatch( deleteTeachersByArea(teacherId) );
+                getToastMsg(
+                    toast, 
+                    'success',
+                    'Área de Conocimiento Actualizada Correctamente'
+                );
+            } else if ( body_area.detail ) {
+                Swal.fire(
+                    'Error', 
+                    getError( body_area.detail, getAreaErrorMessage ), 
+                    'error'
+                );
+            } else {
+                Swal.fire(
+                    'Error', 
+                    getError( body_area.detail, getAreaErrorMessage ),  
+                    'error'
+                );
+            }
+
+        } catch (error) {
+            Swal.fire(
+                'Error', `${error}, consulte con el Desarrollador.`, 'error'
+            );
+        }
     }
 }
 
 export const startDeleteArea = ( area_id, toast ) => {
     return async (dispatch) => {
-
         try {
-
             const resp_area = await fetchWithToken(
                 `school/api/knowledge-area/${area_id}/`, 
                 {}, 
@@ -250,15 +265,8 @@ export const startDeleteArea = ( area_id, toast ) => {
             const body_area = await resp_area.json();
 
             if ( body_area.ok ) {
-                
                 dispatch( deleteArea( area_id ) );
-            
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: body_area.message, 
-                    life: 4000 });
-
+                getToastMsg(toast, 'success', body_area.message );
             } else if (body_area.detail) {
                 Swal.fire(
                     'Error', body_area.detail, 'error'
@@ -270,15 +278,12 @@ export const startDeleteArea = ( area_id, toast ) => {
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             );
         }
-
     }
 }
 
 export const startDeleteManyAreas = ( area_keys, toast ) => {
     return async (dispatch) => {
-
         try {
-            
             const resp_area = await fetchWithToken(
                 'school/api/knowledge-area/destroy-areas/', 
                 {
@@ -288,16 +293,9 @@ export const startDeleteManyAreas = ( area_keys, toast ) => {
             );
             const body_area = await resp_area.json();
 
-            if ( body_area.ok ) {
-                
+            if ( body_area.ok ) {   
                 dispatch( deleteAreas(area_keys) );
-
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: body_area.message, 
-                    life: 4000 });
-
+                getToastMsg(toast, 'success', body_area.message );
             } else {
                 Swal.fire(
                     'Error', body_area.detail, 'error'
@@ -309,15 +307,12 @@ export const startDeleteManyAreas = ( area_keys, toast ) => {
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             );
         }
-
     }
 } 
 
 export const startSaveTeachersToArea = ( teacher_keys, area_id, toast ) => {
     return async (dispatch) => {
-
         try {
-            
             const resp_area = await fetchWithToken( 
                 `school/api/knowledge-area/${area_id}/assign-teachers/`, 
                 {
@@ -328,15 +323,8 @@ export const startSaveTeachersToArea = ( teacher_keys, area_id, toast ) => {
             const body_area = await resp_area.json();
 
             if ( body_area.ok ) {
-
                 dispatch( updateTeachersByArea( teacher_keys ) );
-
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: body_area.message, 
-                    life: 4000 });
-                
+                getToastMsg(toast, 'success', body_area.message );
             } else if ( body_area.detail ) {
                 Swal.fire(
                     'Error', 
@@ -345,7 +333,9 @@ export const startSaveTeachersToArea = ( teacher_keys, area_id, toast ) => {
                 );
             } else {
                 Swal.fire(
-                    'Error', `${body_area}, consulte con el Desarrollador.`, 'error'
+                    'Error', 
+                    getError( body_area.detail, getAreaErrorMessage ),  
+                    'error'
                 );
             }
 
@@ -354,7 +344,6 @@ export const startSaveTeachersToArea = ( teacher_keys, area_id, toast ) => {
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             );
         }
-
     }
 }
 
@@ -412,6 +401,11 @@ const setTeachersByArea = ( teachers ) => ({
 const updateTeachersByArea = ( teachers ) => ({
     type: types.areaTeacherUpdate,
     payload: teachers
+});
+
+const deleteTeachersByArea = ( teacherId ) => ({
+    type: types.areaTeacherDelete,
+    payload: teacherId
 });
 
 export const startRemoveTeachersByArea = () => ({

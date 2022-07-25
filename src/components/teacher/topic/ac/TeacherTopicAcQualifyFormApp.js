@@ -6,7 +6,11 @@ import { confirmDialog } from 'primereact/confirmdialog';
 
 import { InputNumber } from 'primereact/inputnumber';
 import { Button } from 'primereact/button';
-import { startSaveStudentEvaluationAc, startUpdateEvaluationAc } from '../../../../actions/teacher/evaluationAc';
+
+import { 
+  startSaveStudentEvaluationAc, 
+  startUpdateEvaluationAc 
+} from '../../../../actions/teacher/evaluationAc';
 
 
 export const TeacherTopicAcQualifyFormApp = React.memo(({
@@ -75,8 +79,6 @@ export const TeacherTopicAcQualifyFormApp = React.memo(({
         detail_value: data.sectionValue,
         active: true,
       };
-      console.log(newAcEvaluation);
-      console.log(newAcEvaluationDetail);
       dispatch( startUpdateEvaluationAc( 
         newAcEvaluation, newAcEvaluation.id, newAcEvaluationDetail, toast 
       ));

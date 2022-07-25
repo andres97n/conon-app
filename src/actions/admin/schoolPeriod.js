@@ -1,20 +1,26 @@
 import Swal from "sweetalert2";
 
 import { types } from "../../types/types";
-import { getDate, getError, getSchoolPeriodData, getSchoolPeriodErrorMessage } from "../../helpers/admin";
+import { 
+    getDate, 
+    getError, 
+    getSchoolPeriodData, 
+    getSchoolPeriodErrorMessage 
+} from "../../helpers/admin";
 import { fetchWithToken } from "../../helpers/fetch";
 import { startSetCurrentSchoolPeriod } from "../ui";
+import { getToastMsg } from "../../helpers/abp";
 
 
 export const startLoadSchoolPeriods = ( active ) => {
     return async (dispatch) => {
-
         try {
-            
             dispatch( startLoadingSchoolPeriod() );
             let resp_school_period;
             if ( active ) {
-                resp_school_period = await fetchWithToken( 'school/api/school-period/active/' );  
+                resp_school_period = await fetchWithToken( 
+                    'school/api/school-period/active/' 
+                );  
             } else {
                 resp_school_period = await fetchWithToken( 'school/api/school-period/' );
             }
@@ -32,15 +38,12 @@ export const startLoadSchoolPeriods = ( active ) => {
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             );  
         }
-
     }
 }
 
 export const startSaveSchoolPeriod = ( schoolPeriod, toast ) => {
     return async (dispatch) => {
-
         try {
-            
             const resp_school_period = await fetchWithToken( 
                 'school/api/school-period/', 
                 {
@@ -56,15 +59,11 @@ export const startSaveSchoolPeriod = ( schoolPeriod, toast ) => {
             const body_school_period = await resp_school_period.json();
 
             if ( body_school_period.ok ) {
-
-                dispatch( addNewSchoolPeriod( getSchoolPeriodData( schoolPeriod, body_school_period.id ) ));
+                dispatch( addNewSchoolPeriod( 
+                    getSchoolPeriodData( schoolPeriod, body_school_period.id ) 
+                ));
                 dispatch( startSetCurrentSchoolPeriod() );
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: body_school_period.message, 
-                    life: 4000 });
-                
+                getToastMsg(toast, 'success', body_school_period.message );
             } else if ( body_school_period.detail ) {
                 Swal.fire(
                     'Error', 
@@ -73,7 +72,9 @@ export const startSaveSchoolPeriod = ( schoolPeriod, toast ) => {
                 );
             } else {
                 Swal.fire(
-                    'Error', `${body_school_period}, consulte con el Desarrollador.`, 'error'
+                    'Error', 
+                    getError( body_school_period.detail, getSchoolPeriodErrorMessage ),  
+                    'error'
                 );
             }
 
@@ -82,15 +83,12 @@ export const startSaveSchoolPeriod = ( schoolPeriod, toast ) => {
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             );  
         }
-
     }
 }
 
 export const startUpdateSchoolPeriod = ( schoolPeriod, school_period_id, toast ) => {
     return async (dispatch) => {
-
         try {
-            
             const resp_school_period = await fetchWithToken( 
                 `school/api/school-period/${school_period_id}/`, 
                 {
@@ -105,17 +103,14 @@ export const startUpdateSchoolPeriod = ( schoolPeriod, school_period_id, toast )
             const body_school_period = await resp_school_period.json();
 
             if ( body_school_period.ok ) {
-
                 dispatch( updateSchoolPeriod( 
                     getSchoolPeriodData( schoolPeriod, school_period_id ) 
-                    ));
-
-                toast.current.show({
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: 'Área de Conocimiento Actualizada Correctamente', 
-                    life: 4000 });
-                
+                ));
+                getToastMsg(
+                    toast, 
+                    'success', 
+                    'Área de Conocimiento Actualizada Correctamente'
+                );
             } else if ( body_school_period.detail ) {
                 Swal.fire(
                     'Error', 
@@ -124,7 +119,9 @@ export const startUpdateSchoolPeriod = ( schoolPeriod, school_period_id, toast )
                 );
             } else {
                 Swal.fire(
-                    'Error', `${body_school_period}, consulte con el Desarrollador.`, 'error'
+                    'Error', 
+                    getError( body_school_period.detail, getSchoolPeriodErrorMessage ),  
+                    'error'
                 );
             }
 
@@ -133,31 +130,21 @@ export const startUpdateSchoolPeriod = ( schoolPeriod, school_period_id, toast )
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             ); 
         }
-
     }
 }
 
-export const startDeleteSchoolPeriod = ( school_period_id, toast ) => {
+export const startBlockSchoolPeriod = ( schoolPeriod, toast ) => {
     return async (dispatch) => {
-
         try {
-            
             const resp_school_period = await fetchWithToken(
-                `school/api/school-period/${school_period_id}/`, 
+                `school/api/school-period/${schoolPeriod.id}/block/`, 
                 {}, 
                 'DELETE' );
             const body_school_period = await resp_school_period.json();
 
             if ( body_school_period.ok ) {
-                
-                dispatch( deleteSchoolPeriod( school_period_id ) );
-            
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: body_school_period.message, 
-                    life: 4000 });
-
+                dispatch( updateSchoolPeriod( schoolPeriod ) );
+                getToastMsg(toast, 'success', body_school_period.message );
             } else if (body_school_period.detail) {
                 Swal.fire(
                     'Error', body_school_period.detail, 'error'
@@ -169,15 +156,38 @@ export const startDeleteSchoolPeriod = ( school_period_id, toast ) => {
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             ); 
         }
+    }
+}
 
+export const startDeleteSchoolPeriod = ( school_period_id, toast ) => {
+    return async (dispatch) => {
+        try {
+            const resp_school_period = await fetchWithToken(
+                `school/api/school-period/${school_period_id}/`, 
+                {}, 
+                'DELETE' );
+            const body_school_period = await resp_school_period.json();
+
+            if ( body_school_period.ok ) {
+                dispatch( deleteSchoolPeriod( school_period_id ) );
+                getToastMsg(toast, 'success', body_school_period.message );
+            } else if (body_school_period.detail) {
+                Swal.fire(
+                    'Error', body_school_period.detail, 'error'
+                );  
+            }
+
+        } catch (error) {
+            Swal.fire(
+                'Error', `${error}, consulte con el Desarrollador.`, 'error'
+            ); 
+        }
     }
 }
 
 export const startDeleteSchoolPeriods = ( school_periods_keys, toast ) => {
     return async (dispatch) => {
-
         try {
-            
             const resp_school_period = await fetchWithToken(
                 'school/api/school-period/destroys-periods/', 
                 {
@@ -188,15 +198,8 @@ export const startDeleteSchoolPeriods = ( school_periods_keys, toast ) => {
             const body_school_period = await resp_school_period.json();
 
             if ( body_school_period.ok ) {
-                
                 dispatch( deleteSchoolPeriods(school_periods_keys) );
-
-                toast.current.show({ 
-                    severity: 'success', 
-                    summary: 'Conon Informa', 
-                    detail: body_school_period.message, 
-                    life: 4000 });
-
+                getToastMsg(toast, 'success', body_school_period.message );
             } else {
                 Swal.fire(
                     'Error', body_school_period.detail, 'error'
@@ -208,7 +211,6 @@ export const startDeleteSchoolPeriods = ( school_periods_keys, toast ) => {
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             ); 
         }
-
     }
 }
 

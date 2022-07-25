@@ -3,6 +3,7 @@ import { types } from "../../../types/types"
 const initialState = {
     glossaries: [],
     glossaries_detail: [],
+    currentGlossary: {},
     loading: true
 }
 
@@ -24,7 +25,7 @@ export const glossaryReducer = ( state = initialState, action ) => {
         case types.glossariesList:
             return {
                 ...state,
-                glossaries: [...action.payload]
+                glossaries: [ ...action.payload ]
             }
 
         case types.glossariesRemove:
@@ -36,34 +37,26 @@ export const glossaryReducer = ( state = initialState, action ) => {
         case types.glossaryNew:
             return {
                 ...state,
-                glossaries: [
-                    action.payload,
-                    ...state.glossaries
-                ]
+                currentGlossary: { 
+                    glossary: { ...action.payload },
+                    details: state.currentGlossary.details
+                }
             }
-            
-        case types.glossaryUpdate:
+
+        case types.glossaryBlock:
             return {
                 ...state,
                 glossaries: state.glossaries.map(
                     glossary => glossary.id === action.payload.id
-                        ? action.payload
-                        : glossary
-                )
-            }
-
-        case types.glossaryDelete:
-            return {
-                ...state,
-                glossaries: state.glossaries.filter(
-                    glossary => glossary.id !== action.payload
+                        ? ({ ...action.payload })
+                        : (glossary)
                 )
             }
 
         case types.glossariesDetailList:
             return {
                 ...state,
-                glossaries_detail: [...action.payload]
+                glossaries_detail: [ ...action.payload ]
             }
 
         case types.glossariesDetailRemove:
@@ -72,30 +65,72 @@ export const glossaryReducer = ( state = initialState, action ) => {
                 glossaries_detail: []
             }
 
-        case types.glossaryDetailUpdate:
+        case types.glossariesDetailNew:
             return {
                 ...state,
-                glossaries_detail: state.glossaries_detail.map(
-                    glossary_detail => glossary_detail.id === action.payload.id
-                        ? action.payload
-                        : glossary_detail
-                )
+                currentGlossary: {
+                    ...state.currentGlossary,
+                    details: [ ...state.currentGlossary.details, action.payload ]
+                }
+            }
+
+        case types.glossaryDetailBlock:
+            return {
+                ...state,
+                currentGlossary: {
+                    ...state.currentGlossary,
+                    details: state.currentGlossary.details.map(
+                        glossaryDetail => 
+                        glossaryDetail.id === action.payload.id
+                            ? (action.payload)
+                            : (glossaryDetail)
+                    )
+                }
+            }
+
+        case types.glossaryDetailBlockByStudent:
+            return {
+                ...state,
+                currentGlossary: {
+                    ...state.currentGlossary,
+                    details: state.currentGlossary.details.filter(
+                        glossary_detail => glossary_detail.id !== action.payload
+                    )
+                }
             }
 
         case types.glossaryDetailDelete:
             return {
                 ...state,
-                glossaries_detail: state.glossaries_detail.filter(
-                    glossary_detail => glossary_detail.id !== action.payload
-                )
+                currentGlossary: {
+                    ...state.currentGlossary,
+                    details: state.currentGlossary.details.filter(
+                        glossary_detail => glossary_detail.id !== action.payload
+                    )
+                }
             }
         
         case types.glossariesDetailDelete:
             return {
                 ...state,
-                glossaries_detail: state.glossaries_detail.filter( 
-                    glossary_detail => !action.payload.includes(glossary_detail.id)
-                )
+                currentGlossary: {
+                    ...state.currentGlossary,
+                    details: state.currentGlossary.details.filter(
+                        glossary_detail => !action.payload.includes(glossary_detail.id)
+                    )
+                }
+            }
+
+        case types.currentGlossaryList:
+            return {
+                ...state,
+                currentGlossary: { ...action.payload }
+            }
+
+        case types.currentGlossaryRemove:
+            return {
+                ...state,
+                currentGlossary: {}
             }
     
         default:

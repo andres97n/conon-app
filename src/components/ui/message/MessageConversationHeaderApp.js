@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { Button } from 'primereact/button';
@@ -11,23 +11,44 @@ import {
 
 
 export const MessageConversationHeaderApp = React.memo(({
+  userId,
+  conversations,
   showUserSearch,
-  setShowUserSearch
+  setFilteredUsers,
+  setShowUserSearch,
+  setShowMessageDetail
 }) => {
 
   const dispatch = useDispatch();
-  const [searchConversation, setSearchConversation] = useState('');
-  
-  const handleSearchFilter = () => {
-    console.log(searchConversation);
-    // handleReset();
+
+  const searchConversations = (event) => {
+    let _filteredUsers;
+    if (!event.trim().length) {
+      _filteredUsers = [ ...conversations ]
+    } else {
+      _filteredUsers = conversations.filter( conversation => {
+        if (userId !== conversation.first_user.id) {
+          return conversation.first_user.name.toLowerCase().includes(event.toLowerCase());
+        } else {
+          return conversation.second_user.name.toLowerCase().includes(event.toLowerCase());
+        }
+      });
+    }
+    setFilteredUsers(_filteredUsers);
   }
 
   const handleShowUserSearch = () => {
     dispatch( startRemoveCurrentConversation() );
     dispatch( startRemoveConversationDetailList() );
     setShowUserSearch( true );
+    setShowMessageDetail( false );
   }
+
+  useEffect(() => {
+    if (conversations.length > 0) {
+      setFilteredUsers([ ...conversations ]);
+    }
+  }, [conversations, setFilteredUsers]);
 
   return (
     <div className='grid p-fluid'>
@@ -47,21 +68,11 @@ export const MessageConversationHeaderApp = React.memo(({
           </div>
           )
       }
-      <div className='col-9'>
+      <div className='col-12'>
         <InputText
           name='searchConversation'
-          value={searchConversation} 
           placeholder="Buscar" 
-          onChange={(e) => setSearchConversation(e.target.value)} 
-        />
-      </div>
-      <div className='col-3'>
-        <Button 
-          label='Buscar'
-          icon='fas fa-search'
-          type='submit'
-          className='p-button-raised p-button-text'
-          onClick={handleSearchFilter}
+          onChange={(e) => searchConversations(e.target.value)} 
         />
       </div>
     </div>

@@ -1,9 +1,11 @@
 
 export const getUsernameLetter = (username) => {
-    
-    let value = username.toUpperCase();
-    return value.substr(0,1);
-
+    let value = '';
+    if (username) {
+        username.toUpperCase();
+        value = username.substr(0,1);
+    } 
+    return value;
 }
 
 export const isFormFieldValid = (name, formik) => !!(formik.touched[name] && formik.errors[name]);

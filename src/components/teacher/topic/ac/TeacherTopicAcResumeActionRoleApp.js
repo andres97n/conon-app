@@ -2,9 +2,11 @@ import React from 'react';
 
 import { Button } from 'primereact/button';
 import { TabView,TabPanel } from 'primereact/tabview';
+
 import { EmptyContentScreen } from '../../../ui/EmptyContentScreen';
-import { getIconRole } from '../../../../helpers/topic/table/topicTable';
 import { TeacherTopicAcResumeActionRoleBody } from './TeacherTopicAcResumeActionRoleBody';
+
+import { getIconRole } from '../../../../helpers/topic/table/topicTable';
 
 
 export const TeacherTopicAcResumeActionRoleApp = React.memo(({

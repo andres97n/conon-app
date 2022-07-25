@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
 import { useFormik } from 'formik';
+import { useDispatch, useSelector } from 'react-redux';
+import { confirmDialog } from 'primereact/confirmdialog';
+import classNames from 'classnames';
+
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-import { useDispatch, useSelector } from 'react-redux';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { DataTable } from 'primereact/datatable';
@@ -15,34 +17,38 @@ import { Dropdown } from 'primereact/dropdown';
 import { Message } from 'primereact/message';
 import { Badge } from 'primereact/badge';
 
-import { startDeleteClassroom, startDeleteClassrooms, startLoadClasroomSchoolPeriods, startLoadClassrooms, startRemoveClassrooms, startRemoveClassroomSchoolPeriods, startSaveClassroom, startUpdateClassroom } from '../../../actions/admin/classroom';
-import { curse_level_choices, getAutocompleteSelectedData, getDropdownValue, getSingleModelKeys } from '../../../helpers/admin';
+import { OwnerHeaderApp } from '../owner/OwnerHeaderApp';
+import { RowClassroomExpansionApp } from './RowClassroomExpansionApp';
+import { AdminStateTableApp } from '../AdminStateTableApp';
+import { AdminDateTableApp } from '../AdminDateTableApp';
+
+import { 
+    startBlockClassroom,
+    startDeleteClassroom, 
+    startDeleteClassrooms, 
+    startLoadClasroomSchoolPeriods, 
+    startLoadClassrooms, 
+    startRemoveClassrooms, 
+    startRemoveClassroomSchoolPeriods, 
+    startSaveClassroom, 
+    startUpdateClassroom 
+} from '../../../actions/admin/classroom';
+import { 
+    curse_level_choices, 
+    getSingleModelKeys 
+} from '../../../helpers/admin';
 
 
 export const ClassroomScreen = () => {
 
-    let emptyClassroom = {
-        id: null,
-        name: '',
-        curse_level: null,
-        capacity: null,
-        school_period: {
-            id: null,
-            name: '',
-            period_date: ''
-        },
-        created_at: ''
-    }
-
     const dispatch = useDispatch();
-    const { classrooms, school_periods, loading } = useSelector(state => state.dashboard.classroom)
-    const [classroom, setClassroom] = useState(emptyClassroom);
+    const { classrooms, school_periods, loading } = useSelector(
+        state => state.dashboard.classroom
+    );
     const [classroomUpdate, setClassroomUpdate] = useState(null);
     const [filteredSchoolPeriods, setFilteredSchoolPeriods] = useState(null);
     const [classroomDialog, setClassroomDialog] = useState(false);
-    const [deleteClassroomDialog, setDeleteClassroomDialog] = useState(false);
-    const [deleteClassroomsDialog, setDeleteClassroomsDialog] = useState(false);
-    const [selectedClassrooms, setSelectedClassrooms] = useState(null);
+    const [selectedClassrooms, setSelectedClassrooms] = useState([]);
     const [globalFilter, setGlobalFilter] = useState(null);
     const [expandedRows, setExpandedRows] = useState(null);
     const [showUpdate, setShowUpdate] = useState(false);
@@ -52,10 +58,10 @@ export const ClassroomScreen = () => {
 
     const formik = useFormik({
         initialValues: {
-            name: classroom.name,
-            school_period: classroom.school_period.id,
-            curse_level: classroom.curse_level,
-            capacity: classroom.capacity,
+            name: '',
+            school_period: null,
+            curse_level: null,
+            capacity: '',
         },
         validate: (data) => {
             let errors = {}
@@ -63,17 +69,14 @@ export const ClassroomScreen = () => {
             if (!data.name) {
                 errors.name = 'El nombre es requerido.';
             }
-
             if (!data.school_period) {
                 errors.school_period = 'El período lectivo es requerido.';
             }
-
             if (!data.curse_level) {
                 errors.curse_level = 'El nivel del curso es requerido.';
             } else if (data.curse_level < 1 || data.curse_level > 3) {
                 errors.curse_level = 'El nivel del curso no puede ser menor a 1 ni mayor 3.';
             }
-
             if ( data.capacity && data.capacity > 50 ) {
                 errors.curse_level = 'La capacidad no puede ser mayor de 50.';
             }
@@ -81,54 +84,59 @@ export const ClassroomScreen = () => {
             return errors;
         },
         onSubmit: (data) => {
-
             if (showUpdate) {
                 handleClassroomUpdate(data)
             } else {
                 handleClassroomSubmit(data);
             }
-
             formik.resetForm();
         }
     });
 
     const isFormFieldValid = (name) => !!(formik.touched[name] && formik.errors[name]);
 
-    const getFormErrorMessage = (name) => {
-        return isFormFieldValid(name, formik) && <small className="p-error">{formik.errors[name]}</small>;
-    };
-
     const handleLoadClassrooms = useCallback( () => {
         dispatch( startLoadClassrooms( false ) );
     }, [dispatch]);
 
+    const handleRemoveClassrooms = useCallback(
+      () => {
+        dispatch( startRemoveClassrooms() );
+      }, [dispatch],
+    );
+
     const handleClassroomSubmit = ( classroom ) => {
         dispatch( startSaveClassroom( classroom, toast ) );
         setClassroomDialog(false);
-        setClassroom(emptyClassroom);
         dispatch( startRemoveClassroomSchoolPeriods() );
     }
 
     const handleClassroomUpdate = ( classroom ) => {
-        classroom.school_period = getAutocompleteSelectedData( 
-            school_periods, classroom.school_period.name 
-        );
+        const newClassroom = {
+            id: classroomUpdate.id,
+            state: classroomUpdate.state,
+            created_at: classroomUpdate.created_at,
+            ...classroom,
+        };
+        const classroomToUpdate = {
+            ...classroom,
+            school_period: classroom.school_period.id
+        };
+        dispatch( startRemoveClassroomSchoolPeriods() );
         dispatch( startUpdateClassroom( 
-            classroom, 
-            classroomUpdate.id, 
-            toast 
+            newClassroom, classroomToUpdate, toast 
         ));
-        setClassroom(emptyClassroom);
         setClassroomDialog(false);
         setShowUpdate(false);
-        dispatch( startRemoveClassroomSchoolPeriods() );
     }
 
-    const handleClassroomDelete = () => {
-        // Process
+    const handleClassroomBlock = ( classroom ) => {
+        const newClassroom = { ...classroom, state: 0 };
+        dispatch( startBlockClassroom( newClassroom, toast));
+    }
+
+    const handleClassroomDelete = ( classroom ) => {
         dispatch( startDeleteClassroom( classroom.id, toast));
-        setDeleteClassroomDialog(false);
-        setClassroom(emptyClassroom);
     }
 
     const handleClassroomsDelete = () => {
@@ -136,13 +144,47 @@ export const ClassroomScreen = () => {
             getSingleModelKeys( selectedClassrooms ),
             toast
         ));
-        setDeleteClassroomsDialog(false);
-        setSelectedClassrooms(null);
+        setSelectedClassrooms([]);
+    }
+
+    const handleConfirmBlockPeriodScreen = ( data ) => {
+        confirmDialog({
+          message: '¿Está seguro de bloquear la siguiente Aula?',
+          header: 'Confirmación de Bloqueo',
+          icon: 'fas fa-exclamation-triangle',
+          acceptLabel: 'Sí, bloquear',
+          rejectLabel: 'No bloquear',
+          acceptClassName: 'p-button-secondary',
+          accept: () => handleClassroomBlock( data ),
+        });
+    }
+
+    const handleConfirmDeleteClassroom = ( data ) => {
+        confirmDialog({
+          message: '¿Está seguro de eliminar la siguiente Aula?',
+          header: 'Confirmación de Eliminado',
+          icon: 'fas fa-exclamation-triangle',
+          acceptLabel: 'Sí, eliminar',
+          rejectLabel: 'No eliminar',
+          acceptClassName: 'p-button-danger',
+          accept: () => handleClassroomDelete( data ),
+        });
+    }
+
+    const handleConfirmDeleteManyClassrooms = () => {
+        confirmDialog({
+          message: '¿Está seguro de eliminar las siguientes Aulas?',
+          header: 'Confirmación de Eliminado',
+          icon: 'fas fa-exclamation-triangle',
+          acceptLabel: 'Sí, eliminar',
+          rejectLabel: 'No eliminar',
+          acceptClassName: 'p-button-danger',
+          accept: () => handleClassroomsDelete(),
+        });
     }
 
     const openNew = () => {
         dispatch( startLoadClasroomSchoolPeriods() );
-        setClassroom(emptyClassroom);
         setClassroomDialog(true);
     }
 
@@ -152,7 +194,7 @@ export const ClassroomScreen = () => {
         formik.setValues({
             name: classroom.name,
             school_period: classroom.school_period,
-            curse_level: getDropdownValue(curse_level_choices, classroom.curse_level),
+            curse_level: classroom.curse_level,
             capacity: classroom.capacity,
         });
         setClassroomDialog(true);
@@ -166,52 +208,42 @@ export const ClassroomScreen = () => {
         dispatch( startRemoveClassroomSchoolPeriods() );
     }
 
-    const hideDeleteClassroomDialog = () => {
-        setDeleteClassroomDialog(false);
-    }
-
-    const hideDeleteClassroomsDialog = () => {
-        setDeleteClassroomsDialog(false);
-    }
-
-    const confirmDeleteClassroom = ( classroom ) => {
-        setClassroom( classroom );
-        setDeleteClassroomDialog(true);
-    }
-
-    const confirmDeleteSelected = () => {
-        setDeleteClassroomsDialog(true);
-    }
-
-    const onRowExpand = (event) => {
-        // dispatch( startLoadTeachersByArea( event.data.id ) );
-    }
-
-    const onRowCollapse = () => {
-        // dispatch( startRemoveTeachersByArea() );
-    }
+    const handleSetGlobalFilter = useCallback(
+        ( value ) => {
+          setGlobalFilter( value );
+        }, [],
+    );
 
     const searchPeriods = (event) => {
-        
         let _filteredSchoolPeriods;
         if (!event.query.trim().length) {
             _filteredSchoolPeriods = [...school_periods]
         } else {
             _filteredSchoolPeriods = school_periods.filter( school_period => {
-                return school_period.name.toLowerCase().includes(event.query.toLowerCase());
+                return school_period.name.toLowerCase().includes(
+                    event.query.toLowerCase()
+                );
             });
         }
-
         setFilteredSchoolPeriods(_filteredSchoolPeriods);
-
     }
 
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
-                <Button label="Nueva Aula" icon="fas fa-plus" className="p-button-primary mr-2" onClick={openNew} />
-                <Button label="Eliminar Aula/s" icon="fas fa-trash-alt"  className="p-button-danger" onClick={confirmDeleteSelected} 
-                disabled={!selectedClassrooms || !selectedClassrooms.length}/>
+                <Button 
+                    label="Nueva Aula" 
+                    icon="fas fa-plus" 
+                    className="p-button-primary mr-2" 
+                    onClick={openNew} 
+                />
+                <Button 
+                    label="Eliminar Aulas" 
+                    icon="fas fa-trash-alt" 
+                    className="p-button-danger" 
+                    disabled={selectedClassrooms.length < 2}
+                    onClick={handleConfirmDeleteManyClassrooms}
+                />
             </React.Fragment>
         );
     }
@@ -220,139 +252,95 @@ export const ClassroomScreen = () => {
         return (
             <React.Fragment>
                 <div className="actions">
+                    {
+                        rowData.state === 1 && (
+                            <>
+                                <Button 
+                                    icon="fas fa-pen"
+                                    tooltip='Editar Aula'
+                                    tooltipOptions={{position: 'bottom'}}
+                                    className="p-button-rounded p-button-warning mr-2" 
+                                    onClick={() => openUpdate(rowData)} 
+                                />
+                                <Button 
+                                    icon="fas fa-ban"
+                                    tooltip='Bloquear Aula'
+                                    tooltipOptions={{position: 'bottom'}}
+                                    className="p-button-rounded p-button-secondary mr-2" 
+                                    onClick={() => 
+                                        handleConfirmBlockPeriodScreen(rowData)
+                                    } 
+                                />
+                            </>
+                        )
+                    }
                     <Button 
-                        icon="far fa-edit" 
-                        className="p-button-rounded p-button-primary mr-2" 
-                        onClick={() => openUpdate(rowData)} 
-                    />
-                    <Button 
-                        icon="pi pi-trash" 
+                        icon="fas fa-trash"
+                        tooltip='Eliminar Aula'
+                        tooltipOptions={{position: 'bottom'}}
                         className="p-button-rounded p-button-danger" 
-                        onClick={() => confirmDeleteClassroom(rowData)} 
+                        onClick={() => handleConfirmDeleteClassroom(rowData)} 
                     />
                 </div>
             </React.Fragment>
         );
     }
 
-    const header = (
-        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h5 className="m-0">ADMINISTRAR AULAS</h5>
-            <span className="block mt-2 md:mt-0 p-input-icon-left">
-                <i className="fas fa-search" />
-                <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Buscar..." />
-            </span>
-        </div>
-    );
-
     const classroomDialogFooter = (
         <React.Fragment>
             <Button 
-                label="Cancelar" icon="fas fa-times-circle" 
-                className="p-button-text p-button-danger" onClick={hideDialog}
+                label="Cancelar" 
+                icon="fas fa-times-circle" 
+                className="p-button-text p-button-danger" 
+                onClick={hideDialog}
             />
             <Button 
-                label="Guardar" icon="fas fa-check-circle" 
-                className="p-button-text p-button-success" type='submit'
+                label="Guardar" 
+                icon="fas fa-check-circle" 
+                className="p-button-text p-button-success" 
+                type='submit'
                 onClick={formik.handleSubmit}
             />
         </React.Fragment>
     );
 
-    const deleteClassroomDialogFooter = (
-        <React.Fragment>
-            <Button 
-                label="No" 
-                icon="fas fa-times-circle" 
-                className="p-button-text p-button-success" 
-                onClick={hideDeleteClassroomDialog} 
-            />
-            <Button 
-                label="Sí" 
-                icon="fas fa-check-circle" 
-                className="p-button-text p-button-danger" 
-                onClick={handleClassroomDelete} 
-            />
-        </React.Fragment>
-    );
-
-    const deleteClassroomsDialogFooter = (
-        <React.Fragment>
-            <Button
-                label="No" 
-                icon="fas fa-times-circle" 
-                className="p-button-text p-button-success" 
-                onClick={hideDeleteClassroomsDialog} />
-            <Button 
-                label="Sí" 
-                icon="fas fa-check-circle" 
-                className="p-button-text p-button-danger" 
-                onClick={handleClassroomsDelete} />
-        </React.Fragment>
-    );
-
     const itemTemplate = (item) => {
         return (
-            <div className="">
-                <div>{item.name}</div>
-            </div>
+            <div>{item.name}</div>
         );
     }
 
-    const rowExpansionTemplate = (data) => {
-        return (
-            <div className="orders-subtable">
-                <h5>Detalle de {data.name}</h5>
-                <div className="p-grid">
-                    <div className="p-col-12">
-                        <div className='card'>
-                            <div className="p-d-flex p-flex-wrap">
-                                <div className="p-mr-2 p-mb-2">
-                                    <h6>Nombre</h6>
-                                    {data.name}
-                                </div>
-                                {/* <div className='p-mr-2 p-mb-2'>
-                                    <h6>Área de Conocimiento</h6>
-                                    {data.knowledge_area.name}
-                                </div> */}
-                                <div>
-                                    <h6>Objective</h6>
-                                    {data.objective}
-                                </div>
-                                <div>
-                                    <h6>Observaciones</h6>
-                                    {data.observations}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    const stateBodyTemplate = (rowData) => {
-        console.log(rowData);
+    const curseLevelBodyTemplate = (rowData) => {
         return <Badge 
             value={
-                rowData.state === 1
-                    ? 'Activo'
-                    : 'Inactivo'
+                rowData.curse_level === 1
+                    ? 'Primero'
+                    : rowData.curse_level === 2
+                        ? 'Segundo'
+                        : rowData.curse_level === 3 && ('Tercero')
             } 
             severity={
-                (rowData.state === 1)
-                    ? ("success")
-                    : ('warning')
+                rowData.curse_level === 1
+                    ? 'primary'
+                    : rowData.curse_level === 2
+                        ? 'warning'
+                        : rowData.curse_level === 3 && ('success')
             }
+            size='large'
         ></Badge>;
     }
+
+    const getFormErrorMessage = (name) => {
+        return isFormFieldValid(name, formik) && 
+        <small className="p-error">{formik.errors[name]}</small>;
+    };
 
     useEffect(() => {
         handleLoadClassrooms();
         return () => {
-            dispatch( startRemoveClassrooms() );
+            handleRemoveClassrooms();
         }
-    }, [handleLoadClassrooms, dispatch]);
+    }, [handleLoadClassrooms, handleRemoveClassrooms]);
 
     if (!schoolPeriod) {
         return (
@@ -372,41 +360,87 @@ export const ClassroomScreen = () => {
         <div className="p-grid crud-demo">
             <div className="p-col-12">
                 <div className='card'>
-
                     <Toast ref={toast} />
                     <Toolbar className="mb-4" left={leftToolbarTemplate}>
                     </Toolbar>
-
                     <DataTable
                         ref={dataTable} 
                         value={classrooms} 
                         selection={selectedClassrooms} 
                         globalFilter={globalFilter}
-                        header={header}
+                        header={
+                            <OwnerHeaderApp
+                              title={'Administrar Aulas'}
+                              icon={'fas fa-chalkboard mr-2 icon-primary'}
+                              placeholder={'Buscar Aulas...'}
+                              withActive={false}
+                              setGlobalFilter={handleSetGlobalFilter}
+                              handleNewData={() => {}}
+                            />
+                        }
                         loading={loading}
                         expandedRows={expandedRows}
-                        rowExpansionTemplate={rowExpansionTemplate}
+                        rowExpansionTemplate={(e) => 
+                            <RowClassroomExpansionApp 
+                                classroom={e}
+                            />
+                        }
                         dataKey="id" paginator rows={10} 
                         emptyMessage='No existen Aulas.'
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink 
+                        LastPageLink CurrentPageReport"
                         currentPageReportTemplate="{first} - {last} de {totalRecords} Aulas"
                         resizableColumns columnResizeMode="expand"
                         className="datatable-responsive"
                         onSelectionChange={(e) => setSelectedClassrooms(e.value)}
                         onRowToggle={(e) => setExpandedRows(e.data)}
-                        onRowExpand={onRowExpand}
-                        onRowCollapse={onRowCollapse}
                     >
-                        <Column expander style={{ width: '4em' }} />
-                        <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
-                        <Column field="name" header="Nombre" sortable></Column>
-                        <Column field='curse_level' header="Nivel del Curso" sortable></Column>
-                        <Column field="school_period.name" header="Período Lectivo" sortable></Column>
-                        <Column field="state" header="Estado" body={stateBodyTemplate} sortable></Column>
-                        <Column field='created_at' header="Fecha de Creación" sortable></Column>
-                        <Column body={actionBodyTemplate}></Column>
+                        <Column 
+                            expander 
+                            style={{ width: '4em' }} 
+                        />
+                        <Column 
+                            selectionMode="multiple" 
+                            headerStyle={{ width: '3rem' }}
+                        ></Column>
+                        <Column
+                            className='text-center'
+                            field="name" 
+                            header="Nombre" 
+                            sortable
+                        ></Column>
+                        <Column
+                            className='text-center'
+                            field='curse_level' 
+                            header="Nivel del Curso"
+                            body={curseLevelBodyTemplate}
+                            sortable
+                        ></Column>
+                        <Column 
+                            className='text-center'
+                            field="school_period.name" 
+                            header="Período Lectivo" 
+                            sortable
+                        ></Column>
+                        <Column
+                            className='text-center'
+                            field="state" 
+                            header="Estado" 
+                            body={(e) => <AdminStateTableApp data={e} />}
+                            sortable
+                        ></Column>
+                        <Column
+                            className='text-center'
+                            field='created_at' 
+                            header="Fecha de Creación"
+                            body={(e) => <AdminDateTableApp data={e} />} 
+                            sortable
+                        ></Column>
+                        <Column
+                            className='text-center'
+                            body={actionBodyTemplate}
+                        ></Column>
                     </DataTable>
-
                     <Dialog
                         modal 
                         header={
@@ -421,7 +455,6 @@ export const ClassroomScreen = () => {
                         style={{ width: '550px' }} 
                     >
                         <div className="grid p-fluid mt-3">
-
                             <div className="field col-12">
                                 <span className="p-float-label">
                                     <InputText
@@ -429,16 +462,19 @@ export const ClassroomScreen = () => {
                                         name='name'
                                         value={formik.values.name}
                                         onChange={formik.handleChange}
-                                        className={classNames({ 'p-invalid': isFormFieldValid('name') })}
+                                        className={classNames({ 'p-invalid': 
+                                            isFormFieldValid('name') 
+                                        })}
                                     />
                                     <label 
                                         htmlFor='name'
-                                        className={classNames({ 'p-error': isFormFieldValid('name', formik) })}
+                                        className={classNames({ 'p-error': 
+                                            isFormFieldValid('name', formik) 
+                                        })}
                                     > Nombre*</label>
                                 </span>
                                 {getFormErrorMessage('name')}
                             </div>
-
                             <div className="field col-12">
                                 <span className="p-float-label">
                                     <AutoComplete
@@ -451,17 +487,20 @@ export const ClassroomScreen = () => {
                                         suggestions={filteredSchoolPeriods}
                                         completeMethod={searchPeriods}
                                         itemTemplate={itemTemplate}
-                                        className={classNames({ 'p-invalid': isFormFieldValid('school_period') })}
+                                        className={classNames({ 'p-invalid': 
+                                            isFormFieldValid('school_period') 
+                                        })}
                                         onChange={formik.handleChange}
                                     />
                                     <label 
                                         htmlFor='school_period'
-                                        className={classNames({ 'p-error': isFormFieldValid('school_period') })}
+                                        className={classNames({ 'p-error': 
+                                            isFormFieldValid('school_period') 
+                                        })}
                                     >Período Lectivo*</label>
                                 </span>
                                 {getFormErrorMessage('school_period')}
                             </div>
-
                             <div className="field col-6">
                                 <span className="p-float-label">
                                     <Dropdown
@@ -471,7 +510,9 @@ export const ClassroomScreen = () => {
                                         value={formik.values.curse_level} 
                                         options={curse_level_choices} 
                                         onChange={formik.handleChange}
-                                        className={classNames({ 'p-invalid': isFormFieldValid('curse_level') })}
+                                        className={classNames({ 'p-invalid': 
+                                            isFormFieldValid('curse_level') 
+                                        })}
                                     />
                                     <label htmlFor='curse_level'>
                                         Nivel del Curso*
@@ -479,7 +520,6 @@ export const ClassroomScreen = () => {
                                 </span>
                                 {getFormErrorMessage('curse_level')}
                             </div>
-
                             <div className="field col-6">
                                 <span className="p-float-label">
                                     <InputNumber
@@ -493,7 +533,9 @@ export const ClassroomScreen = () => {
                                         decrementButtonIcon="fas fa-minus" 
                                         decrementButtonClassName="p-button-danger" 
                                         incrementButtonClassName="p-button-success" 
-                                        className={classNames({ 'p-invalid': isFormFieldValid('capacity') })}
+                                        className={classNames({ 'p-invalid': 
+                                            isFormFieldValid('capacity') 
+                                        })}
                                     />
                                     <label 
                                         htmlFor='capacity'
@@ -503,46 +545,8 @@ export const ClassroomScreen = () => {
                                     </label>
                                 </span>
                             </div>
-
-                        </div>
-
-                    </Dialog>
-
-                    <Dialog 
-                        visible={deleteClassroomDialog} 
-                        style={{ width: '450px' }} 
-                        header="Confirmar" modal 
-                        footer={deleteClassroomDialogFooter} 
-                        onHide={hideDeleteClassroomDialog}
-                    >
-                        <div 
-                            className="flex align-items-center justify-content-center"
-                        >
-                            <i 
-                                className="fas fa-exclamation-triangle mr-3" 
-                                style={{ fontSize: '2rem' }} 
-                            />
-                                {classroom && <span>¿Está seguro que desea la siguiente Aula: <b>{classroom.name}</b>?</span>}
                         </div>
                     </Dialog>
-
-                    <Dialog 
-                        visible={deleteClassroomsDialog} 
-                        style={{ width: '450px' }} 
-                        header="Confirmar" modal 
-                        footer={deleteClassroomsDialogFooter} 
-                        onHide={hideDeleteClassroomsDialog}
-                    >
-                        <div className="flex align-items-center justify-content-center">
-                            <i 
-                                className="fas fa-exclamation-triangle mr-3" 
-                                style={{ fontSize: '2rem' }} 
-                            />
-                            {classroom && <span>¿Está seguro que desea eliminar las siguientes 
-                                <b> {selectedClassrooms && selectedClassrooms.length}</b> aulas seleccionadas?</span>}
-                        </div>
-                    </Dialog>
-
                 </div>
             </div>
         </div>

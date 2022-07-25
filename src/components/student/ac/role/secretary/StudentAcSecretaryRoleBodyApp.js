@@ -68,6 +68,8 @@ export const StudentAcSecretaryRoleBodyApp = React.memo(({
           <StudentAcSecretarySendInfoFormApp 
             acId={currentMethodology.id}
             userId={userId}
+            teamDetailAc={teamDetailAc}
+            toast={toast}
           />
         </div>
       </div>

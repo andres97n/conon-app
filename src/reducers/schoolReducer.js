@@ -7,16 +7,34 @@ import { conversationReducer } from "./admin/school/conversationReducer";
 import { glossaryReducer } from "./admin/school/glossaryReducer";
 import { topicReducer } from "./admin/topic/topicReducer";
 import { studentReducer } from "./admin/user/studentReducer";
-import { getInformationStepSevenAbpReducer } from "./student/abp/getInformationStepSevenAbpReducer";
-import { learnedConceptStepThreeAbpReducer } from "./student/abp/learnedConceptStepThreeAbpReducer";
+import { 
+  getInformationStepSevenAbpReducer 
+} from "./student/abp/getInformationStepSevenAbpReducer";
+import { 
+  learnedConceptStepThreeAbpReducer 
+} from "./student/abp/learnedConceptStepThreeAbpReducer";
 import { opinionStepOneAbpReducer } from "./student/abp/opinionStepOneAbpReducer";
-import { performActionStepFiveAbpReducer } from "./student/abp/performActionStepFiveAbpReducer";
-import { problemDefinitionStepSixAbpReducer } from "./student/abp/problemDefinitionStepSixAbpReducer";
-import { problemResolutionStepEightAbpReducer } from "./student/abp/problemResolutionStepEightAbpReducer";
-import { questionStepOneAbpReducer } from "./student/abp/questionStepOneAbpReducer";
-import { studentIdeaStepTwoAbpReducer } from "./student/abp/studentIdeaStepTwoAbpReducer";
-import { unknownConceptStepFourAbpReducer } from "./student/abp/unknownConceptStepFourAbpReducer";
-import { topicStudentEvaluationReducer } from "./student/school/topicStudentEvaluationReducer";
+import { 
+  questionStepOneAbpReducer 
+} from "./student/abp/questionStepOneAbpReducer";
+import { 
+  studentIdeaStepTwoAbpReducer 
+} from "./student/abp/studentIdeaStepTwoAbpReducer";
+import { 
+  performActionStepFiveAbpReducer 
+} from "./student/abp/performActionStepFiveAbpReducer";
+import { 
+  problemDefinitionStepSixAbpReducer 
+} from "./student/abp/problemDefinitionStepSixAbpReducer";
+import { 
+  problemResolutionStepEightAbpReducer 
+} from "./student/abp/problemResolutionStepEightAbpReducer";
+import { 
+  unknownConceptStepFourAbpReducer 
+} from "./student/abp/unknownConceptStepFourAbpReducer";
+import { 
+  topicStudentEvaluationReducer 
+} from "./student/school/topicStudentEvaluationReducer";
 import { abpReducer } from "./teacher/abp/abpReducer";
 import { evaluationAbpReducer } from "./teacher/abp/evaluationAbpReducer";
 import { rubricAbpRuducer } from "./teacher/abp/rubricAbpReducer";
@@ -37,6 +55,7 @@ import { coordinatorAcReducer } from "./student/ac/coordinatorAcReducer";
 import { organizerAcReducer } from "./student/ac/organizerAcReducer";
 import { spokesmanAcReducer } from "./student/ac/spokesmanAcReducer";
 import { secretaryAcReducer } from "./student/ac/secretaryAcReducer";
+import { commentReducer } from "./admin/topic/commentReducer";
 
 
 export const schoolReducer = combineReducers({
@@ -76,4 +95,5 @@ export const schoolReducer = combineReducers({
   classroom:                  classroomReducer,
   glossary:                   glossaryReducer,
   conversation:               conversationReducer,
+  comment:                    commentReducer,
 });

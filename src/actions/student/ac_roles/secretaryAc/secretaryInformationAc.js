@@ -34,6 +34,30 @@ export const startLoadSecretaryInformationsAcList = ( teamId ) => {
   }
 }
 
+export const startLoadSecretaryInformationsByTeamDetail = ( teamDetailId ) => {
+  return async (dispatch) => {
+    try {
+      dispatch( startLoadingSecretaryInformationAc() );
+      const respSecretaryInformationAc = await fetchWithToken( 
+        `ac-roles/api/secretary-information-ac/${teamDetailId}/by-team-detail` 
+      );
+      const bodySecretaryInformationAc = await respSecretaryInformationAc.json();
+
+      if (bodySecretaryInformationAc.ok) {
+        dispatch( setSecretaryInformationAcList( bodySecretaryInformationAc.conon_data));
+        dispatch( endLoadingSecretaryInformationAc() );
+      } else {
+        Swal.fire('Error', bodySecretaryInformationAc.detail, 'error');
+      }
+
+    } catch (error) {
+      Swal.fire(
+        'Error', `${error}, consulte con el Desarrollador.`, 'error'
+      );
+    }
+  }
+}
+
 export const startSaveSecretaryInformationAc = ( informationAc, toast ) => {
   return async ( dispatch ) => {
     try {

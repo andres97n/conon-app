@@ -14,24 +14,22 @@ import '../../styles/flags/flags.css';
 import { NavbarScreen } from '../shared/NavbarScreen';
 import { SideNavigation } from '../shared/SideNavigation';
 import { FooterScreen } from '../shared/FooterScreen';
-// import { AppConfig } from '../shared/AppConfig';
 import { MethodologyStudentScreen } from '../student/MethodologyStudentScreen';
 import { ToolMainScreen } from '../ui/tool/ToolMainScreen';
 import { MessageScreen } from '../ui/message/MessageScreen';
+import { CommentScreen } from '../admin/comment/CommentScreen';
+import { StudentTopicScreen } from '../student/topic/StudentTopicScreen';
+
 
 export const StudentDashboardScreen = () => {
 
     const [layoutMode, setLayoutMode] = useState('static');
-    const [layoutColorMode, setLayoutColorMode] = useState('light')
-    const [inputStyle, setInputStyle] = useState('outlined');
-    const [ripple, setRipple] = useState(true);
     const [staticMenuInactive, setStaticMenuInactive] = useState(false);
     const [overlayMenuActive, setOverlayMenuActive] = useState(false);
     const [mobileMenuActive, setMobileMenuActive] = useState(false);
     const [mobileTopbarMenuActive, setMobileTopbarMenuActive] = useState(false);
-
+    
     PrimeReact.ripple = true;
-
     let menuClick = false;
     let mobileTopbarMenuClick = false;
 
@@ -42,23 +40,6 @@ export const StudentDashboardScreen = () => {
             removeClass(document.body, "body-overflow-hidden");
         }
     }, [mobileMenuActive]);
-
-    const onInputStyleChange = (inputStyle) => {
-        setInputStyle(inputStyle);
-    }
-
-    const onRipple = (e) => {
-        PrimeReact.ripple = e.value;
-        setRipple(e.value)
-    }
-
-    const onLayoutModeChange = (mode) => {
-        setLayoutMode(mode)
-    }
-
-    const onColorModeChange = (mode) => {
-        setLayoutColorMode(mode)
-    }
 
     const onWrapperClick = (event) => {
         if (!menuClick) {
@@ -99,6 +80,7 @@ export const StudentDashboardScreen = () => {
 
     const onSidebarClick = () => {
         menuClick = true;
+        setLayoutMode(oldState => (oldState));
     }
 
     const onMobileTopbarMenuClick = (event) => {
@@ -145,9 +127,9 @@ export const StudentDashboardScreen = () => {
         'layout-static-sidebar-inactive': staticMenuInactive && layoutMode === 'static',
         'layout-overlay-sidebar-active': overlayMenuActive && layoutMode === 'overlay',
         'layout-mobile-sidebar-active': mobileMenuActive,
-        'p-input-filled': inputStyle === 'filled',
-        'p-ripple-disabled': ripple === false,
-        'layout-theme-light': layoutColorMode === 'light'
+        'p-input-filled': true,
+        'p-ripple-disabled': false,
+        'layout-theme-light': true
     });
 
     const menu = [
@@ -163,17 +145,12 @@ export const StudentDashboardScreen = () => {
                 {
                     label: 'Temas de Estudio', 
                     icon: 'fas fa-file-powerpoint icon-primary', 
-                    to:'/topic'
-                },
-                {
-                    label: 'Glosarios', 
-                    icon: 'fas fa-spell-check icon-primary', 
-                    to: '/glossary'
+                    to:'/student-topic'
                 },
                 {
                     label: 'Comentarios', 
                     icon: 'fas fa-comment-alt icon-primary', 
-                    to: '/empty'
+                    to: '/comment'
                 },
                 {
                     label: 'Mensajes', 
@@ -188,19 +165,21 @@ export const StudentDashboardScreen = () => {
         <div 
             className={wrapperClass} 
             onClick={onWrapperClick}
-            // style={{backgroundColor:'#044360'}}
         >
-
             <NavbarScreen 
                 onToggleMenuClick={onToggleMenuClick} 
-                layoutColorMode={layoutColorMode}
-                mobileTopbarMenuActive={mobileTopbarMenuActive} onMobileTopbarMenuClick={onMobileTopbarMenuClick} onMobileSubTopbarMenuClick={onMobileSubTopbarMenuClick}
+                layoutColorMode={'light'}
+                mobileTopbarMenuActive={mobileTopbarMenuActive} 
+                onMobileTopbarMenuClick={onMobileTopbarMenuClick} 
+                onMobileSubTopbarMenuClick={onMobileSubTopbarMenuClick}
             />
-
             <div className="layout-sidebar" onClick={onSidebarClick}>
-                <SideNavigation model={menu} onMenuItemClick={onMenuItemClick} layoutColorMode={layoutColorMode} />
+                <SideNavigation 
+                    model={menu} 
+                    onMenuItemClick={onMenuItemClick} 
+                    layoutColorMode={'light'} 
+                />
             </div>
-
             <div className="layout-main-container">
                 <div className="layout-main">
                     <Route
@@ -210,35 +189,23 @@ export const StudentDashboardScreen = () => {
                     />
                     <Route
                         exact
-                        path="/message"
-                        component={MessageScreen}
-                    />
-                    {/* <Route
-                        exact
-                        path="/admin"
-                        component={OwnerScreen}
+                        path="/student-topic"
+                        component={StudentTopicScreen}
                     />
                     <Route
                         exact
-                        path="/student"
-                        component={StudentScreen}
-                    /> */}
+                        path="/message"
+                        component={MessageScreen}
+                    />
+                    <Route
+                        exact
+                        path="/comment"
+                        component={CommentScreen}
+                    />
                 </div>
                 <ToolMainScreen />
-                <FooterScreen layoutColorMode={layoutColorMode}/>
+                <FooterScreen layoutColorMode={'light'}/>
             </div>
-
-            {/* <AppConfig 
-                rippleEffect={ripple} 
-                onRippleEffect={onRipple}  
-                inputStyle={inputStyle} 
-                onInputStyleChange={onInputStyleChange}
-                layoutMode={layoutMode} 
-                onLayoutModeChange={onLayoutModeChange} 
-                layoutColorMode={layoutColorMode} 
-                onColorModeChange={onColorModeChange} 
-            /> */}
-
             <CSSTransition
                 classNames="layout-mask" 
                 timeout={{ enter: 200, exit: 200 }} 
@@ -247,7 +214,6 @@ export const StudentDashboardScreen = () => {
             >
                 <div className="layout-mask p-component-overlay"></div>
             </CSSTransition>
-            
         </div>
     )
 }

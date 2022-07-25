@@ -13,9 +13,12 @@ import { StudentAcCoordinatorStrategyViewApp } from './StudentAcCoordinatorStrat
 
 import { getMultipleFormError } from '../../../../../helpers/topic/student/ac/acCoordinator';
 import { 
-  startLoadCoordinatorStrategiesAcList, startSaveCoordinatorStrategyAc 
+  startLoadCoordinatorStrategiesAcList, 
+  startSaveCoordinatorStrategyAc 
 } from '../../../../../actions/student/ac_roles/coordinatorAc/coordinatorStategyAc';
-import { getCoordinatoStrategyObject } from '../../../../../helpers/topic/student/ac_roles/coordinatorAc';
+import { 
+  getCoordinatoStrategyObject 
+} from '../../../../../helpers/topic/student/ac_roles/coordinatorAc';
 
 
 export const StudentAcCoordinatorStrategyFormApp = React.memo(({

@@ -10,9 +10,6 @@ import { EmptyTeamStepsDataAbpApp } from './abp/abpSteps/EmptyTeamStepsDataAbpAp
 
 import { startRemoveCurrentMethodology } from '../../actions/admin/topic';
 
-// TODO: Cuando se tenga todas las metodologías validar la fecha del tópico
-// TODO: Cuando se tenga todas las metodologías probar cada una ellas el guardado de sus
-//  componentes
 
 export const SelectedStudentTopicApp = React.memo(({
     selectedTopic,

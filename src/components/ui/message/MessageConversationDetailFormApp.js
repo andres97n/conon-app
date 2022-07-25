@@ -21,24 +21,23 @@ export const MessageConversationDetailFormApp = React.memo(({
   const dispatch = useDispatch();
   const [messageInput, setMessageInput] = useState('');
 
-  const handleSaveMessage = () => {
+  const handleSaveMessage = ( message ) => {
+    const secondUser = { id: user.id, name: user.name };
     const newMessage = {
       owner: ownerId,
-      detail: messageInput,
+      detail: message,
       state: 0,
       blocked: false
     }
     if (Object.keys(conversation).length === 0) {
-      if (user) {
+      if (user.id) {
         const newConversation = {
           first_user: ownerId,
-          second_user: user,
+          second_user: secondUser.id,
           blocked: false,
           state: 0,
         };
-        // dispatch( startSaveConversation( newConversation, newMessage, toast ) );
-        console.log(newConversation);
-        console.log(newMessage);
+        dispatch( startSaveConversation( newConversation, newMessage, secondUser ) );
         handleClearSearch();
       }
     } else {
@@ -69,7 +68,7 @@ export const MessageConversationDetailFormApp = React.memo(({
                 tooltip='Enviar Mensaje'
                 tooltipOptions={{position:'bottom'}}
                 disabled={!messageInput}
-                onClick={() => handleSaveMessage()}
+                onClick={() => handleSaveMessage(messageInput)}
               />
             </div>
           </div>

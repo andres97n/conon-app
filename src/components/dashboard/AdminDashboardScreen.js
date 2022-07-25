@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { Route } from 'react-router-dom';
-import { CSSTransition } from 'react-transition-group';
 
 import PrimeReact from 'primereact/api';
+import { Route } from 'react-router-dom';
+import { CSSTransition } from 'react-transition-group';
 
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -14,8 +14,6 @@ import '../../styles/flags/flags.css';
 import { NavbarScreen } from '../shared/NavbarScreen';
 import { FooterScreen } from '../shared/FooterScreen';
 import { SideNavigation } from '../shared/SideNavigation';
-// import { AppConfig } from '../shared/AppConfig';
-
 import { OwnerScreen } from '../admin/owner/OwnerScreen';
 import { StudentScreen } from '../admin/student/StudentScreen';
 import { TeacherScreen } from '../admin/teacher/TeacherScreen';
@@ -24,19 +22,17 @@ import { AsignatureScreen } from '../admin/asignature/AsignatureScreen';
 import { SchoolPeriodScreen } from '../admin/school-period/SchoolPeriodScreen';
 import { ClassroomScreen } from '../admin/classroom/ClassroomScreen';
 import { AssignKnowledgeArea } from '../admin/asignations/AssignKnowledgeArea';
-import { AssignSchoolPeriod } from '../admin/asignations/AssignSchoolPeriod';
 import { AssignAsignature } from '../admin/asignations/AssignAsignature';
 import { AssingClassroom } from '../admin/asignations/AssingClassroom';
-// import { TopicScreen } from '../admin/topic/TopicScreen';
+import { 
+    DeallocationKnowledgeAreaScreen 
+} from '../admin/deallocations/DeallocationKnowledgeAreaScreen';
+import { DTBlockClassroomDetail } from '../teacher/classroom/DTBlockClassroomDetail';
 
-// TODO: Crear o asignar los componentes correspondientes para las designaciones necesarias 
 
 export const AdminDashboardScreen = () => {
 
     const [layoutMode, setLayoutMode] = useState('static');
-    const [layoutColorMode, setLayoutColorMode] = useState('light')
-    const [inputStyle, setInputStyle] = useState('outlined');
-    const [ripple, setRipple] = useState(true);
     const [staticMenuInactive, setStaticMenuInactive] = useState(false);
     const [overlayMenuActive, setOverlayMenuActive] = useState(false);
     const [mobileMenuActive, setMobileMenuActive] = useState(false);
@@ -54,47 +50,26 @@ export const AdminDashboardScreen = () => {
             removeClass(document.body, "body-overflow-hidden");
         }
     }, [mobileMenuActive]);
-
-    const onInputStyleChange = (inputStyle) => {
-        setInputStyle(inputStyle);
-    }
-
-    const onRipple = (e) => {
-        PrimeReact.ripple = e.value;
-        setRipple(e.value)
-    }
-
-    const onLayoutModeChange = (mode) => {
-        setLayoutMode(mode)
-    }
-
-    const onColorModeChange = (mode) => {
-        setLayoutColorMode(mode)
-    }
-
+    
     const onWrapperClick = (event) => {
         if (!menuClick) {
             setOverlayMenuActive(false);
             setMobileMenuActive(false);
         }
-
         if (!mobileTopbarMenuClick) {
             setMobileTopbarMenuActive(false);
         }
-
         mobileTopbarMenuClick = false;
         menuClick = false;
     }
 
     const onToggleMenuClick = (event) => {
         menuClick = true;
-
         if (isDesktop()) {
             if (layoutMode === 'overlay') {
                 if(mobileMenuActive === true) {
                     setOverlayMenuActive(true);
                 }
-
                 setOverlayMenuActive((prevState) => !prevState);
                 setMobileMenuActive(false);
             }
@@ -105,24 +80,22 @@ export const AdminDashboardScreen = () => {
         else {
             setMobileMenuActive((prevState) => !prevState);
         }
-
         event.preventDefault();
     }
 
     const onSidebarClick = () => {
         menuClick = true;
+        setLayoutMode(oldState => (oldState));
     }
 
     const onMobileTopbarMenuClick = (event) => {
         mobileTopbarMenuClick = true;
-
         setMobileTopbarMenuActive((prevState) => !prevState);
         event.preventDefault();
     }
 
     const onMobileSubTopbarMenuClick = (event) => {
         mobileTopbarMenuClick = true;
-
         event.preventDefault();
     }
 
@@ -147,7 +120,8 @@ export const AdminDashboardScreen = () => {
         if (element.classList)
             element.classList.remove(className);
         else
-            element.className = element.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+            element.className = element.className.replace(new RegExp('(^|\\b)' + 
+            className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
     }
 
     const wrapperClass = classNames('layout-wrapper', {
@@ -156,9 +130,9 @@ export const AdminDashboardScreen = () => {
         'layout-static-sidebar-inactive': staticMenuInactive && layoutMode === 'static',
         'layout-overlay-sidebar-active': overlayMenuActive && layoutMode === 'overlay',
         'layout-mobile-sidebar-active': mobileMenuActive,
-        'p-input-filled': inputStyle === 'filled',
-        'p-ripple-disabled': ripple === false,
-        'layout-theme-light': layoutColorMode === 'light'
+        'p-input-filled': true,
+        'p-ripple-disabled': false,
+        'layout-theme-light': true
     });
 
     const menu = [
@@ -185,44 +159,62 @@ export const AdminDashboardScreen = () => {
                 {label: 'Aulas', icon: 'fas fa-chalkboard', to: '/classroom'},
                 {label: 'Asignaciones', icon: 'fas fa-hand-pointer', 
                     items: [
-                        {label: 'Áreas de Conocimiento', icon: 'fas fa-book', to:'/assignment/assign-area'},
-                        {label: 'Asignaturas', icon: 'fas fa-book-reader', to: '/assign-asignature'},
-                        {label: 'Aulas', icon: 'fas fa-chalkboard', to: '/assign-classroom'},
+                        {
+                            label: 'Áreas de Conocimiento', 
+                            icon: 'fas fa-book', 
+                            to:'/assignment/assign-area'
+                        },
+                        {
+                            label: 'Asignaturas', 
+                            icon: 'fas fa-book-reader', 
+                            to: '/assign-asignature'
+                        },
+                        {
+                            label: 'Aulas', 
+                            icon: 'fas fa-chalkboard', 
+                            to: '/assign-classroom'
+                        },
                     ]
                 },
-                {label: 'Desasignaciones', icon: 'fas fa-ban', 
+                {label: 'Denegaciones', icon: 'fas fa-ban', 
                     items: [
-                        {label: 'Áreas de Conocimiento', icon: 'fas fa-book'},
-                        {label: 'Períodos Lectivos', icon: 'fas fa-school', to:'/block-school-period'},
-                        {label: 'Aulas', icon: 'fas fa-chalkboard', to: '/assign-classroom'},
+                        {
+                            label: 'Áreas de Conocimiento', 
+                            icon: 'fas fa-book',
+                            to: '/denials/area'
+                        },
+                        {
+                            label: 'Aulas', 
+                            icon: 'fas fa-chalkboard', 
+                            to: '/denials/classroom'
+                        },
                     ]
                 },
             ]
         },
-        // {
-        //     label: 'Plantillas', icon: 'pi pi-fw pi-search',
-        //     items: [
-        //         {label: 'Temas de Estudio', icon: 'fas fa-file-powerpoint', to:'/topic'},
-        //         {label: 'Glosarios', icon: 'fas fa-spell-check', to: '/glossary'},
-        //         {label: 'Comentarios', icon: 'fas fa-comment-alt', to: '/empty'},
-        //         {label: 'Mensajes', icon: 'fas fa-envelope-open-text', to: '/empty'}
-        //     ]
-        // },
     ];
 
     return (
         <div className={wrapperClass} 
-            onClick={onWrapperClick}>
+            onClick={onWrapperClick}
+        >
             <NavbarScreen 
                 onToggleMenuClick={onToggleMenuClick} 
-                layoutColorMode={layoutColorMode}
-                mobileTopbarMenuActive={mobileTopbarMenuActive} onMobileTopbarMenuClick={onMobileTopbarMenuClick} onMobileSubTopbarMenuClick={onMobileSubTopbarMenuClick}
+                layoutColorMode={'light'}
+                mobileTopbarMenuActive={mobileTopbarMenuActive} 
+                onMobileTopbarMenuClick={onMobileTopbarMenuClick} 
+                onMobileSubTopbarMenuClick={onMobileSubTopbarMenuClick}
             />
-
-            <div className="layout-sidebar" onClick={onSidebarClick}>
-                <SideNavigation model={menu} onMenuItemClick={onMenuItemClick} layoutColorMode={layoutColorMode} />
+            <div 
+                className="layout-sidebar" 
+                onClick={onSidebarClick}
+            >
+                <SideNavigation 
+                    model={menu} 
+                    onMenuItemClick={onMenuItemClick} 
+                    layoutColorMode={'light'} 
+                />
             </div>
-
             <div className="layout-main-container">
                 <div className="layout-main">
                     <Route
@@ -237,13 +229,18 @@ export const AdminDashboardScreen = () => {
                     />
                     <Route
                         exact
+                        path="/teacher"
+                        component={TeacherScreen}
+                    />
+                    <Route
+                        exact
                         path="/student"
                         component={StudentScreen}
                     />
                     <Route
                         exact
-                        path="/teacher"
-                        component={TeacherScreen}
+                        path="/school-period"
+                        component={SchoolPeriodScreen}
                     />
                     <Route
                         exact
@@ -257,11 +254,6 @@ export const AdminDashboardScreen = () => {
                     />
                     <Route
                         exact
-                        path="/school-period"
-                        component={SchoolPeriodScreen}
-                    />
-                    <Route
-                        exact
                         path="/classroom"
                         component={ClassroomScreen}
                     />
@@ -269,11 +261,6 @@ export const AdminDashboardScreen = () => {
                         exact
                         path="/assignment/assign-area"
                         component={AssignKnowledgeArea}
-                    />
-                    <Route
-                        exact
-                        path="/block-school-period"
-                        component={AssignSchoolPeriod}
                     />
                     <Route
                         exact
@@ -285,15 +272,20 @@ export const AdminDashboardScreen = () => {
                         path="/assign-classroom"
                         component={AssingClassroom}
                     />
-                    {/* <Route
+                    <Route
                         exact
-                        path="/topic"
-                        component={TopicScreen}
-                    /> */}
+                        path="/denials/area"
+                        component={DeallocationKnowledgeAreaScreen}
+                    />
+                    <Route
+                        exact
+                        path="/denials/classroom"
+                        component={DTBlockClassroomDetail}
+                    />
                 </div>
-                <FooterScreen layoutColorMode={layoutColorMode}/>
+                <FooterScreen layoutColorMode={'light'}/>
             </div>
-            {/* <AppConfig 
+            {/* <AppConfig
                 rippleEffect={ripple} 
                 onRippleEffect={onRipple}  
                 inputStyle={inputStyle} 

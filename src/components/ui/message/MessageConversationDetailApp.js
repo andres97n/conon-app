@@ -13,14 +13,15 @@ import {
   startLoadConversationDetailList,
   startRemoveConversationDetailList,
 } from '../../../actions/admin/conversation';
-import { getIsMessageValidToDelete } from '../../../helpers/conversation/conversationList';
+import { 
+  getIsMessageValidToDelete 
+} from '../../../helpers/conversation/conversationList';
 
 
 export const MessageConversationDetailApp = React.memo(({
   ownerId,
   user,
   conversation,
-  showMessageDetail,
   toast,
   handleClearSearch
 }) => {
@@ -69,7 +70,11 @@ export const MessageConversationDetailApp = React.memo(({
         handleRemoveConversationMessages();
       }
     }
-  }, [conversation, handleLoadConversationMessages, handleRemoveConversationMessages]);
+  }, [
+    conversation, 
+    handleLoadConversationMessages, 
+    handleRemoveConversationMessages
+  ]);
   
   if (loadingMessages) {
     return (
@@ -85,10 +90,9 @@ export const MessageConversationDetailApp = React.memo(({
             className="custombar1" 
             style={{ 
               width: '100%', 
-              height: showMessageDetail ? '50px' : '350px' 
+              height: conversationDetail.length === 0 ? '50px' : '350px' 
             }}
           >
-            {/* TODO: El nombre del usuario receptor es necesario para guardar un mensaje */}
             <div className='grid p-fluid'>
               {
                 conversationDetail.length === 0 
@@ -134,7 +138,7 @@ export const MessageConversationDetailApp = React.memo(({
       </div>
       <MessageConversationDetailFormApp 
         ownerId={ownerId}
-        user={user?.user}
+        user={user}
         conversation={conversation}
         toast={toast}
         handleClearSearch={handleClearSearch}

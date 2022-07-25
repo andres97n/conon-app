@@ -74,7 +74,6 @@ export const getPersonErrorMessage = ( detail ) => {
 }
 
 export const savePerson = async ( data ) => {
-
     const person = {
         identification_type: data.identification_type,
         identification: data.identification,
@@ -84,7 +83,6 @@ export const savePerson = async ( data ) => {
         age: data.age,
         phone: data.phone
     }
-
     try {
         
         const resp_person = await fetchWithToken( 

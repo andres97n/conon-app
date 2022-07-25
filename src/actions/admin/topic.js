@@ -70,7 +70,6 @@ export const startLoadTopicsByOwner = () => {
     return async (dispatch, getState) => {
         const { uid } = getState().auth;
         try {
-            
             if (uid) {
                 dispatch( startLoadingTopics() );
                 const resp_topic = await fetchWithToken( 
@@ -79,12 +78,10 @@ export const startLoadTopicsByOwner = () => {
                 const body_topic = await resp_topic.json();
         
                 if (body_topic.ok) {
-                    // dispatch( setTopics( changeDate( body_topic.conon_data )));
                     dispatch( setTopics(body_topic.conon_data));
                     dispatch( endLoadingTopics() );
                 } else {
                     Swal.fire('Error', body_topic.detail, 'error');
-                    dispatch( endLoadingTopics() );
                 }   
             } else {
                 dispatch( setTopics([]));
@@ -99,12 +96,52 @@ export const startLoadTopicsByOwner = () => {
     }
 }
 
-export const startLoadTopicsListByStudent = ( userId ) => {
-    return async (dispatch) => {
+export const startLoadInactiveTopicsByOwner = ( periodId ) => {
+    return async (dispatch, getState) => {
+        const { uid, type } = getState().auth;
         try {
+            if (uid) {
+                dispatch( startLoadingTopics() );
+                let resp_topic;
+                if (type === 1) {
+                    resp_topic = await fetchWithToken( 
+                        `topic/api/topic?owner=${uid}&active=${false}&auth_state=A`,
+                    );    
+                } else{
+                    resp_topic = await fetchWithToken( 
+                        `topic/api/path/topic/inactive-topic/${uid}/${periodId}/`,
+                    );
+                }
+                const body_topic = await resp_topic.json();
+        
+                if (body_topic.ok) {
+                    dispatch( setTopics(body_topic.conon_data));
+                    dispatch( endLoadingTopics() );
+                } else {
+                    Swal.fire('Error', body_topic.detail, 'error');
+                }   
+            } else {
+                dispatch( setTopics([]));
+            }
+            
+        } catch (error) {
+            Swal.fire(
+                'Error', `${error}, consulte con el Desarrollador.`, 'error'
+            );
+            dispatch( endLoadingTopics() );
+        }
+    }
+}
+
+export const startLoadTopicsListByStudent = () => {
+    return async (dispatch, getState) => {
+        try {
+            const { auth } = getState();
+            const { uid } = auth;
             dispatch( startLoadingTopics() );
             const resp_topic = await fetchWithToken( 
-                `topic/api/path/topic/topics-by-student/${userId}/`,
+                `topic/api/path/topic/topics-by-student/${uid}/`,
+                // `topic/api/path/topic/current-topics-by-student/${uid}/`,
             );
             const body_topic = await resp_topic.json();
 
@@ -113,14 +150,38 @@ export const startLoadTopicsListByStudent = ( userId ) => {
                 dispatch( endLoadingTopics() );
             } else {
                 Swal.fire('Error', body_topic.detail, 'error');
-                dispatch( endLoadingTopics() );
             }
 
         } catch (error) {
             Swal.fire(
                 'Error', `${error}, consulte con el Desarrollador.`, 'error'
             );
-            dispatch( endLoadingTopics() );
+        }
+    }
+}
+
+export const startLoadInactiveTopicsByStudent = ( periodId ) => {
+    return async (dispatch, getState) => {
+        try {
+            const { auth } = getState();
+            const { uid } = auth;
+            dispatch( startLoadingTopics() );
+            const resp_topic = await fetchWithToken( 
+                `topic/api/path/topic/inactive-topic/${uid}/${periodId}/`,
+            );
+            const body_topic = await resp_topic.json();
+
+            if (body_topic.ok) {
+                dispatch( setTopics(body_topic.conon_data));
+                dispatch( endLoadingTopics() );
+            } else {
+                Swal.fire('Error', body_topic.detail, 'error');
+            }
+
+        } catch (error) {
+            Swal.fire(
+                'Error', `${error}, consulte con el Desarrollador.`, 'error'
+            );
         }
     }
 }

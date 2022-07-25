@@ -11,6 +11,7 @@ import {
   startRemoveUnknownConceptStepFourAbpList 
 } from '../../../../../actions/student/abp_steps/unknownConceptStepFourAbp';
 
+
 export const StudentStepFourAbpApp = React.memo(({
   is_moderator,
   teamDetail,
@@ -53,21 +54,24 @@ export const StudentStepFourAbpApp = React.memo(({
         handleRemoveUnknownConceptAbpData();
       }
     }
-  }, [teamDetail, handleLoadUnknownConceptAbpData, handleRemoveUnknownConceptAbpData]);
+  }, [
+    teamDetail, 
+    handleLoadUnknownConceptAbpData, 
+    handleRemoveUnknownConceptAbpData
+  ]);
 
   return (
     <>
       {
-        is_moderator
-          && (
-            <div className='col-12'>
-              <UnknownConcepStepFourFormAbpApp 
-                teamId={teamDetail.id}
-                conceptsSize={currentTeamUnknownConcepts.length}
-                toast={toast}
-              />
-            </div>
-          )
+        is_moderator && (
+          <div className='col-12'>
+            <UnknownConcepStepFourFormAbpApp 
+              teamId={teamDetail.id}
+              conceptsSize={currentTeamUnknownConcepts.length}
+              toast={toast}
+            />
+          </div>
+        )
       }
       {
         loadingTeamUnknownConcepts

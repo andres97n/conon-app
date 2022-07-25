@@ -10,15 +10,15 @@ export const MessageListViewApp = React.memo(({
   type,
   toast,
   showUserSearch,
+  showMessageDetail,
   setShowUserSearch,
+  setShowMessageDetail
 }) => {
 
-  // const dispatch = useDispatch();
   const { currentConversation } = useSelector(
     state => state.dashboard.conversation
   );
   const [userSelected, setUserSelected] = useState(null);
-  const [showMessageDetail, setShowMessageDetail] = useState(false);
   
   const handleSetUserSelected = useCallback(
     ( user ) => {
@@ -29,7 +29,7 @@ export const MessageListViewApp = React.memo(({
   const handleSetShowMessageDetail = useCallback(
     ( value ) => {
       setShowMessageDetail( value );
-    }, [],
+    }, [setShowMessageDetail],
   );
 
   const handleClearMessagePanel = useCallback(
@@ -37,6 +37,13 @@ export const MessageListViewApp = React.memo(({
       setShowUserSearch(false);
       setUserSelected(null);
       setShowMessageDetail(false);
+    }, [setShowUserSearch, setShowMessageDetail],
+  );
+
+  const handleClearNewMessage = useCallback(
+    () => {
+      setShowUserSearch(false);
+      setUserSelected(null);
     }, [setShowUserSearch],
   );
 
@@ -46,7 +53,6 @@ export const MessageListViewApp = React.memo(({
         showUserSearch && (
           <div className='col-12'>
             <MessageNewConversationsApp
-              userId={userId}
               type={type}
               userSelected={userSelected}
               setUserSelected={handleSetUserSelected}
@@ -57,7 +63,11 @@ export const MessageListViewApp = React.memo(({
         )
       }
       {
-        (!showMessageDetail && Object.keys(currentConversation).length === 0) && (
+        (
+          !showMessageDetail && 
+          !showUserSearch && 
+          Object.keys(currentConversation).length === 0
+        ) && (
           <div className='col-12'>
             <p className='text-center'>
               Seleccione una conversación para escribir mensajes.
@@ -71,9 +81,8 @@ export const MessageListViewApp = React.memo(({
             ownerId={userId}
             user={userSelected}
             conversation={currentConversation}
-            showMessageDetail={showMessageDetail}
             toast={toast}
-            handleClearSearch={handleClearMessagePanel}
+            handleClearSearch={handleClearNewMessage}
           />
         )
       }

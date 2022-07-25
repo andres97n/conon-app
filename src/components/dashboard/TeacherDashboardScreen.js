@@ -15,28 +15,26 @@ import '../../styles/flags/flags.css';
 import { NavbarScreen } from '../shared/NavbarScreen';
 import { FooterScreen } from '../shared/FooterScreen';
 import { SideNavigation } from '../shared/SideNavigation';
-// import { AppConfig } from '../shared/AppConfig';
 
+import { ToolMainScreen } from '../ui/tool/ToolMainScreen';
 import { DTStudentScreen } from '../teacher/student/DTStudentScreen';
-import { DTAssignClassroom } from '../teacher/classroom/DTAssignClassroom';
 import { DTBlockClassroomDetail } from '../teacher/classroom/DTBlockClassroomDetail';
 import { MethodologiesHelperScreen } from '../teacher/helper/MethodologiesHelperScreen';
 import { NewTeacherTopicScreen } from '../teacher/content/topic/NewTeacherTopicScreen';
 import { MessageScreen } from '../ui/message/MessageScreen';
 import { TeacherTopicScreen } from '../teacher/topic/TeacherTopicScreen';
-import { ToolMainScreen } from '../ui/tool/ToolMainScreen';
+import { AssingClassroom } from '../admin/asignations/AssingClassroom';
+import { GlossaryScreen } from '../admin/glossary/GlossaryScreen';
+import { CommentScreen } from '../admin/comment/CommentScreen';
+
 
 export const TeacherDashboardScreen = () => {
 
     const [layoutMode, setLayoutMode] = useState('static');
-    const [layoutColorMode, setLayoutColorMode] = useState('light')
-    const [inputStyle, setInputStyle] = useState('outlined');
-    const [ripple, setRipple] = useState(true);
     const [staticMenuInactive, setStaticMenuInactive] = useState(false);
     const [overlayMenuActive, setOverlayMenuActive] = useState(false);
     const [mobileMenuActive, setMobileMenuActive] = useState(false);
     const [mobileTopbarMenuActive, setMobileTopbarMenuActive] = useState(false);
-
     PrimeReact.ripple = true;
 
     let menuClick = false;
@@ -50,40 +48,20 @@ export const TeacherDashboardScreen = () => {
         }
     }, [mobileMenuActive]);
 
-    const onInputStyleChange = (inputStyle) => {
-        setInputStyle(inputStyle);
-    }
-
-    const onRipple = (e) => {
-        PrimeReact.ripple = e.value;
-        setRipple(e.value)
-    }
-
-    const onLayoutModeChange = (mode) => {
-        setLayoutMode(mode)
-    }
-
-    const onColorModeChange = (mode) => {
-        setLayoutColorMode(mode)
-    }
-
     const onWrapperClick = (event) => {
         if (!menuClick) {
             setOverlayMenuActive(false);
             setMobileMenuActive(false);
         }
-
         if (!mobileTopbarMenuClick) {
             setMobileTopbarMenuActive(false);
         }
-
         mobileTopbarMenuClick = false;
         menuClick = false;
     }
 
     const onToggleMenuClick = (event) => {
         menuClick = true;
-
         if (isDesktop()) {
             if (layoutMode === 'overlay') {
                 if(mobileMenuActive === true) {
@@ -100,24 +78,22 @@ export const TeacherDashboardScreen = () => {
         else {
             setMobileMenuActive((prevState) => !prevState);
         }
-
         event.preventDefault();
     }
 
     const onSidebarClick = () => {
         menuClick = true;
+        setLayoutMode(oldState => (oldState));
     }
 
     const onMobileTopbarMenuClick = (event) => {
         mobileTopbarMenuClick = true;
-
         setMobileTopbarMenuActive((prevState) => !prevState);
         event.preventDefault();
     }
 
     const onMobileSubTopbarMenuClick = (event) => {
         mobileTopbarMenuClick = true;
-
         event.preventDefault();
     }
 
@@ -142,7 +118,8 @@ export const TeacherDashboardScreen = () => {
         if (element.classList)
             element.classList.remove(className);
         else
-            element.className = element.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+            element.className = element.className.replace(new RegExp('(^|\\b)' + 
+            className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
     }
 
     const wrapperClass = classNames('layout-wrapper', {
@@ -151,9 +128,9 @@ export const TeacherDashboardScreen = () => {
         'layout-static-sidebar-inactive': staticMenuInactive && layoutMode === 'static',
         'layout-overlay-sidebar-active': overlayMenuActive && layoutMode === 'overlay',
         'layout-mobile-sidebar-active': mobileMenuActive,
-        'p-input-filled': inputStyle === 'filled',
-        'p-ripple-disabled': ripple === false,
-        'layout-theme-light': layoutColorMode === 'light'
+        'p-input-filled': true,
+        'p-ripple-disabled': false,
+        'layout-theme-light': true
     });
 
     const menu = [
@@ -229,7 +206,7 @@ export const TeacherDashboardScreen = () => {
                 {
                     label: 'Comentarios', 
                     icon: 'fas fa-comment-alt icon-primary', 
-                    to: '/empty'
+                    to: '/comment'
                 },
                 {
                     label: 'Mensajes', 
@@ -245,7 +222,7 @@ export const TeacherDashboardScreen = () => {
             onClick={onWrapperClick}>
             <NavbarScreen 
                 onToggleMenuClick={onToggleMenuClick} 
-                layoutColorMode={layoutColorMode}
+                layoutColorMode={'light'}
                 mobileTopbarMenuActive={mobileTopbarMenuActive} 
                 onMobileTopbarMenuClick={onMobileTopbarMenuClick} 
                 onMobileSubTopbarMenuClick={onMobileSubTopbarMenuClick}
@@ -254,7 +231,7 @@ export const TeacherDashboardScreen = () => {
                 <SideNavigation 
                     model={menu} 
                     onMenuItemClick={onMenuItemClick} 
-                    layoutColorMode={layoutColorMode} 
+                    layoutColorMode={'light'} 
                 />
             </div>
             <div className="layout-main-container">
@@ -272,7 +249,7 @@ export const TeacherDashboardScreen = () => {
                     <Route
                         exact
                         path="/assign-classroom"
-                        component={DTAssignClassroom}
+                        component={AssingClassroom}
                     />
                     <Route
                         exact
@@ -299,20 +276,20 @@ export const TeacherDashboardScreen = () => {
                         path="/message"
                         component={MessageScreen}
                     />
+                    <Route
+                        exact
+                        path="/glossary"
+                        component={GlossaryScreen}
+                    />
+                    <Route
+                        exact
+                        path="/comment"
+                        component={CommentScreen}
+                    />
                 </div>
                 <ToolMainScreen />
-                <FooterScreen layoutColorMode={layoutColorMode}/>
+                <FooterScreen layoutColorMode={'light'}/>
             </div>
-            {/* <AppConfig 
-                rippleEffect={ripple} 
-                onRippleEffect={onRipple}  
-                inputStyle={inputStyle} 
-                onInputStyleChange={onInputStyleChange}
-                layoutMode={layoutMode} 
-                onLayoutModeChange={onLayoutModeChange} 
-                layoutColorMode={layoutColorMode} 
-                onColorModeChange={onColorModeChange} 
-            /> */}
             <CSSTransition 
                 classNames="layout-mask" 
                 timeout={{ enter: 200, exit: 200 }} 

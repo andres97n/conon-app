@@ -32,8 +32,7 @@ export const getStudentData = ( data, keys ) => {
 
 }
 
-export const getTeacherData = ( data, keys ) => {
-    
+export const getTeacherData = ( data, keys ) => { 
     return {
         id: keys.teacher_id,
         person: {
@@ -58,13 +57,12 @@ export const getTeacherData = ( data, keys ) => {
 }
 
 export const getAreaData = ( data, area_id ) => {
-
     return {
         id: area_id,
         name: data.name,
         coordinator: data.coordinator,
         sub_coordinator: data.sub_coordinator,
-        type: getAreaTypeLabel(data.type),
+        type: data.type,
         objective: data.objective,
         observations: data.observations || 'S/N',
         created_at: data.created_at || moment().format('DD-MM-YYYY')
@@ -73,7 +71,6 @@ export const getAreaData = ( data, area_id ) => {
 }
 
 export const getAsignatureData = ( data, asignature_id ) => {
-
     return {
         id: asignature_id,
         name: data.name,
@@ -88,14 +85,8 @@ export const getAsignatureData = ( data, asignature_id ) => {
 export const getAsignatureDetailData = ( data, asignature_detail_id ) => {
     return {
         id: asignature_detail_id,
-        classroom: {
-            id: data.classroom.id,
-            name: data.classroom.name
-        },
-        teacher: {
-            id: data.teacher.id,
-            name: data.teacher.name
-        },
+        classroom: data.classroom,
+        teacher: data.teacher,
         created_at: data.created_at || moment().format('DD-MM-YYYY')
     }
 }
@@ -107,7 +98,7 @@ export const getSchoolPeriodData = ( data, school_period_id ) => {
         init_date: getDate(data.init_date, 'DD-MM-YYYY'),
         end_date: getDate(data.end_date, 'DD-MM-YYYY'),
         school_end_date: getDate(data.school_end_date, 'DD-MM-YYYY'),
-        state: 'Abierto',
+        state: 1,
         observations: data.observations || 'S/N',
         created_at: data.created_at || moment().format('DD-MM-YYYY')
     }
@@ -302,24 +293,16 @@ export const getTeachersKeys = ( data ) => {
 }
 
 export const validateSaveSchoolPeriod = ( school_periods ) => {
-
-    let school_period;
-
+    let school_period = true;
     school_periods.forEach( data => {
-        if ( data.state === 'Abierto' ) {
-            school_period = data
+        if ( data.state === 1 ) {
+            school_period = false;
         }
     });
-    
-    if ( school_period ) {
-        return false;
-    } else {
-        return true;
-    }
+    return school_period;
 }
 
 export const toCapitalize = ( word ) => {
-
     const arr = word.split(" ");
     for (let i = 0; i < arr.length; i++) {
         if (arr[i].length > 2) {
@@ -328,7 +311,6 @@ export const toCapitalize = ( word ) => {
     
     }
     return arr.join(" ");
-
 }
 
 export const setNewDate = ( data ) => {
@@ -420,9 +402,66 @@ export const getClassroomErrorMessage = ( detail ) => {
     }
 }
 
-// TODO: Terminar método
-export const getGlossaryErrorMessage = () => {
+export const getGlossaryErrorMessage = ( detail ) => {
+    if ( detail.classroom ) {
+        return detail.classroom[0];
+    } else if ( detail.state ) {
+        return detail.state[0];
+    } else if ( detail.observations ) {
+        return detail.observations[0];
+    } else {
+        return 'Error, consulte con el Desarrollador.';
+    }
+}
 
+export const getGlossaryDetailErrorMessage = ( detail ) => {
+    if ( detail.title ) {
+        return detail.title[0];
+    } else if ( detail.description ) {
+        return detail.description[0];
+    } else if ( detail.image ) {
+        return detail.image[0];
+    } else if ( detail.url ) {
+        return detail.url[0];
+    } else if ( detail.state ) {
+        return detail.state[0];
+    } else if ( detail.observation ) {
+        return detail.observation[0];
+    } else {
+        return 'Error, consulte con el Desarrollador.';
+    }
+}
+
+export const getCommentErrorMessage = ( detail ) => {
+    if ( detail.topic ) {
+        return detail.topic[0];
+    } else if ( detail.owner ) {
+        return detail.owner[0];
+    } else if ( detail.title ) {
+        return detail.title[0];
+    } else if ( detail.wrong_use ) {
+        return detail.wrong_use[0];
+    } else if ( detail.state ) {
+        return detail.state[0];
+    } else {
+        return 'Error, consulte con el Desarrollador.';
+    }
+}
+
+export const getReplyErrorMessage = ( detail ) => {
+    if ( detail.comment ) {
+        return detail.comment[0];
+    } else if ( detail.owner ) {
+        return detail.owner[0];
+    } else if ( detail.detail ) {
+        return detail.detail[0];
+    } else if ( detail.wrong_use ) {
+        return detail.wrong_use[0];
+    } else if ( detail.state ) {
+        return detail.state[0];
+    } else {
+        return 'Error, consulte con el Desarrollador.';
+    }
 }
 
 export const getAutocompleteSelectedData = ( values, name ) => {
@@ -437,7 +476,6 @@ export const getAutocompleteSelectedData = ( values, name ) => {
 }
 
 export const getSingleModelKeys = ( keys ) => {
-
     return keys.map( data => {
         return data.id
         // model_keys.push(data.id)
@@ -517,9 +555,15 @@ export const transformToDateObject = ( date ) => {
 export const getDataIdsForModel = ( dataContent ) => {
     return dataContent.map( data => {
         return data.id
-      });
+    });
 }
 
+export const getExcludeStudentsToClassroom = ( students, studentsKeys ) => {
+    let newStudents = students.filter( 
+        student => !studentsKeys.includes(student.id)
+    );
+    return newStudents.map( student => (student.id) );
+}
 
 export const getTeachersForAreas = ( teachers, teachers_by_area ) => {
     return teachers.filter( 

@@ -83,6 +83,32 @@ export const startLoadDuaDetailList = ( duaId ) => {
     }
 }
 
+export const startLoadStudentEvaluation = ( topicId ) => {
+    return async (dispatch, getState) => {
+        try {
+            const { auth } = getState();
+            const { uid } = auth;
+            dispatch( startLoadingCurrentMethodology() );
+            const resp_dua_detail = await fetchWithToken( 
+                `dua/api/path/dua/student-evaluation/${topicId}/${uid}/` 
+            );
+            const body_dua_detail = await resp_dua_detail.json();
+    
+            if (body_dua_detail.ok) {
+                dispatch( setCurrentMethodology(body_dua_detail.conon_data));
+                dispatch( endLoadingCurrentMethodology() );
+            } else {
+                Swal.fire('Error', body_dua_detail.detail, 'error');
+            }
+
+        } catch (error) {
+            Swal.fire(
+                'Error', `${error}, consulte con el Desarrollador.`, 'error'
+            );
+        }
+    }
+}
+
 export const startSaveDua = ( topicId, dua, toast ) => {
     return async ( dispatch ) => {
         try {

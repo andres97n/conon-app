@@ -1,16 +1,17 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { confirmDialog } from 'primereact/confirmdialog';
+
 import { Toolbar } from 'primereact/toolbar';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
-import { Dialog } from 'primereact/dialog';
 
-import {  getDataIdsForModel } from '../../../helpers/admin';
+import { OwnerHeaderApp } from '../owner/OwnerHeaderApp';
+
+import { getDataIdsForModel } from '../../../helpers/admin';
 import { startSaveTeachersToArea } from '../../../actions/admin/area';
 
-// TODO: Manejar el renderizado de la tabla
 
 export const AssignAreaTable = React.memo(({ 
     area,
@@ -20,103 +21,115 @@ export const AssignAreaTable = React.memo(({
     const dispatch = useDispatch();
     const { teachers, loading } = useSelector(state => state.dashboard.area);
     const [globalFilter, setGlobalFilter] = useState(null);
-    const [selectedTeachers, setSelectedTeachers] = useState(null);
-    const [putTeachersDialog, setPutTeachersDialog] = useState(false);
+    const [selectedTeachers, setSelectedTeachers] = useState([]);
     const dataTable = useRef(null);
 
-    const handlePutTeachers = () => {
+    const handlePutTeachers = ( selectedTeachers ) => {
         dispatch( startSaveTeachersToArea(
             getDataIdsForModel(selectedTeachers),
             area.id,
             toast
         ));
-        setPutTeachersDialog(false);
-        setSelectedTeachers(null);
+        setSelectedTeachers([]);
     }
-
-    const hidePutTeachersDialog = () => {
-        setPutTeachersDialog(false);
-    }
-
-    const confirmPutSelected = () => {
-        setPutTeachersDialog(true);
-    }
-
-    const header = (
-        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h5 className="m-0">SELECCIONAR DOCENTES</h5>
-            <span className="block mt-2 md:mt-0 p-input-icon-left">
-                <i className="fas fa-search" />
-                <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Buscar..." />
-            </span>
-        </div>
+    const handleSetGlobalFilter = useCallback(
+        ( value ) => {
+          setGlobalFilter( value );
+        }, [],
     );
+
+    const handleConfirmAssignTeachers = ( data ) => {
+        confirmDialog({
+          message: 
+            data.length === 1
+                ? ('¿Está seguro que desea asignar el siguiente Docente?')
+                : ('¿Está seguro que desea asignar los siguientes Docentes?'),
+          header: 'Confirmación de Asignado',
+          icon: 'fas fa-exclamation-triangle',
+          acceptLabel: 'Sí, asignar',
+          rejectLabel: 'No asignar',
+          accept: () => handlePutTeachers( data ),
+        });
+    }
 
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
                 <Button 
-                    label="Asignar Docente/s" 
+                    label={
+                        selectedTeachers.length < 2
+                            ? "Asignar Docente"
+                            : "Asignar Docentes"
+                    } 
                     icon="fas fa-check"  
                     className="p-button-primary" 
-                    onClick={confirmPutSelected} 
-                    disabled={!selectedTeachers || !selectedTeachers.length}
+                    disabled={selectedTeachers.length === 0}
+                    onClick={() => handleConfirmAssignTeachers(selectedTeachers)}
                 />
             </React.Fragment>
         );
     }
 
-    const putTeachersDialogFooter = (
-        <React.Fragment>
-            <Button label="No" icon="fas fa-times-circle" className="p-button-text p-button-success" onClick={hidePutTeachersDialog} />
-            <Button label="Sí" icon="fas fa-check-circle" className="p-button-text p-button-primary" onClick={handlePutTeachers} />
-        </React.Fragment>
-    );
-
     return (
-        <div className="p-grid crud-demo">
-            <div className="p-col-12">
-
-                    <Toolbar className="mb-4" left={leftToolbarTemplate}>
-                    </Toolbar>
-
-                    <DataTable
-                        ref={dataTable} 
-                        value={teachers} 
-                        selection={selectedTeachers} 
-                        globalFilter={globalFilter}
-                        header={header}
-                        loading={loading}
-                        dataKey="id" paginator rows={10} 
-                        emptyMessage='No existen Docentes para Agregar.'
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                        currentPageReportTemplate="{first} - {last} de {totalRecords} docentes"
-                        resizableColumns 
-                        columnResizeMode="expand"
-                        className="datatable-responsive"
-                        onSelectionChange={(e) => setSelectedTeachers(e.value)}
-                    >
-                        <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
-                        <Column field="identification" header="Identificación" sortable></Column>
-                        <Column field="name" header="Nombres" sortable></Column>
-                        <Column field="title" header="Título" sortable></Column>
-                    </DataTable>
-
-                    <Dialog
-                        visible={putTeachersDialog} 
-                        style={{ width: '450px' }} 
-                        header="Confirmar" modal 
-                        footer={putTeachersDialogFooter} 
-                        onHide={hidePutTeachersDialog}
-                    >
-                        <div className="flex align-items-center justify-content-center">
-                            <i 
-                                className="fas fa-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} 
-                            />
-                            {<span>¿Está seguro que desea asignar los siguientes <b>{selectedTeachers && selectedTeachers.length}</b> docentes seleccionados?</span>}
-                        </div>
-                    </Dialog>
-
+        <div className="grid p-fluid">
+            <div className='col-12'>
+                <Toolbar 
+                    className="mb-4" 
+                    left={leftToolbarTemplate}
+                ></Toolbar>
+            </div>
+            <div className="col-12">
+                <DataTable
+                    ref={dataTable} 
+                    value={teachers} 
+                    selection={selectedTeachers} 
+                    globalFilter={globalFilter}
+                    header={
+                        <OwnerHeaderApp
+                            title={'Docentes No Asignados'}
+                            icon={'fas fa-chalkboard-teacher mr-2 icon-primary'}
+                            placeholder={'Buscar Docentes...'}
+                            withActive={false}
+                            setGlobalFilter={handleSetGlobalFilter}
+                            handleNewData={() => {}}
+                        />
+                    }
+                    loading={loading}
+                    dataKey="id" paginator rows={10} 
+                    emptyMessage='No existen Docentes para Agregar.'
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink 
+                    LastPageLink CurrentPageReport"
+                    currentPageReportTemplate="{first} - {last} de {totalRecords} 
+                    docentes"
+                    resizableColumns 
+                    columnResizeMode="expand"
+                    className="datatable-responsive"
+                    showGridlines
+                    onSelectionChange={(e) => setSelectedTeachers(e.value)}
+                >
+                    <Column 
+                        selectionMode="multiple" 
+                        headerStyle={{ width: '3rem' }}
+                    ></Column>
+                    <Column
+                        className='text-center'
+                        field="identification" 
+                        header="Identificación" 
+                        sortable
+                    ></Column>
+                    <Column
+                        className='text-center'
+                        field="name" 
+                        header="Nombres" 
+                        sortable
+                    ></Column>
+                    <Column
+                        className='text-center'
+                        field="title" 
+                        header="Título" 
+                        sortable
+                    ></Column>
+                </DataTable>
             </div>
         </div>
     )

@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import classNames from 'classnames';
 import { useFormik } from 'formik';
+import { confirmDialog } from 'primereact/confirmdialog';
+import classNames from 'classnames';
+
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
@@ -11,34 +13,39 @@ import { Column } from 'primereact/column';
 import { Dialog } from 'primereact/dialog';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { AutoComplete } from 'primereact/autocomplete';
-import { Badge } from 'primereact/badge';
 import { Message } from 'primereact/message';
 
-import { getAutocompleteSelectedData, getSingleModelKeys } from '../../../helpers/admin';
-import { startDeleteAsignature, startDeleteAsignatures, startLoadAsignatureAreas, startLoadAsignatures, startRemoveAsignatureAreas, startRemoveAsignatures, startSaveAsignature, startUpdateAsignature } from '../../../actions/admin/asignature';
+import { OwnerHeaderApp } from '../owner/OwnerHeaderApp';
+import { AdminStateTableApp } from '../AdminStateTableApp';
+import { AdminDateTableApp } from '../AdminDateTableApp';
+import { RowAsignatureExpansionApp } from './RowAsignatureExpansionApp';
+
+import { 
+    getSingleModelKeys 
+} from '../../../helpers/admin';
+import { 
+    startBlockAsignature,
+    startDeleteAsignature,
+    startDeleteAsignatures, 
+    startLoadAsignatureAreas, 
+    startLoadAsignatures, 
+    startRemoveAsignatureAreas, 
+    startRemoveAsignatures, 
+    startSaveAsignature, 
+    startUpdateAsignature 
+} from '../../../actions/admin/asignature';
+
 
 export const AsignatureScreen = () => {
 
-    let emptyAsignature = {
-        id: null,
-        name: '',
-        objective: '',
-        knowledge_area: {
-            name: '',
-            coordinator: null
-        },
-        observations: ''
-    }
-
     const dispatch = useDispatch();
-    const { asignatures, areas, loading } = useSelector(state => state.dashboard.asignature)
-    const [asignature, setAsignature] = useState(emptyAsignature);
+    const { asignatures, areas, loading } = useSelector(
+        state => state.dashboard.asignature
+    );
     const [asignatureUpdate, setAsignatureUpdate] = useState(null);
     const [filteredAreas, setFilteredAreas] = useState(null);
     const [asignatureDialog, setAsignatureDialog] = useState(false);
-    const [deleteAsignatureDialog, setDeleteAsignatureDialog] = useState(false);
-    const [deleteAsignaturesDialog, setDeleteAsignaturesDialog] = useState(false);
-    const [selectedAsignatures, setSelectedAsignatures] = useState(null);
+    const [selectedAsignatures, setSelectedAsignatures] = useState([]);
     const [globalFilter, setGlobalFilter] = useState(null);
     const [expandedRows, setExpandedRows] = useState(null);
     const [showUpdate, setShowUpdate] = useState(false);
@@ -48,10 +55,10 @@ export const AsignatureScreen = () => {
 
     const formik = useFormik({
         initialValues: {
-            name: asignature.objective,
-            knowledge_area: asignature.knowledge_area.id,
-            objective: asignature.objective,
-            observations: asignature.observations,
+            name: '',
+            knowledge_area: null,
+            objective: '',
+            observations: '',
         },
         validate: (data) => {
             let errors = {}
@@ -59,11 +66,9 @@ export const AsignatureScreen = () => {
             if (!data.name) {
                 errors.name = 'El nombre es requerido.';
             }
-
             if (!data.knowledge_area) {
                 errors.knowledge_area = 'El Área de Conocimiento es requerido.';
             }
-
             if (!data.objective) {
                 errors.objective = 'El objectivo es requerido.';
             }
@@ -71,53 +76,55 @@ export const AsignatureScreen = () => {
             return errors;
         },
         onSubmit: (data) => {
-
             if (showUpdate) {
                 handleAsignatureUpdate(data)
             } else {
                 handleAsignatureSubmit(data);
             }
-
             formik.resetForm();
         }
     });
 
     const isFormFieldValid = (name) => !!(formik.touched[name] && formik.errors[name]);
 
-    const getFormErrorMessage = (name) => {
-        return isFormFieldValid(name, formik) && <small className="p-error">{formik.errors[name]}</small>;
-    };
-
     const handleLoadAsignatures = useCallback( () => {
         dispatch( startLoadAsignatures( false ) );
     }, [dispatch]);
 
     const handleAsignatureSubmit = ( asignature ) => {
-        // asignature.name = toCapitalize(asignature.name);
+        dispatch( startRemoveAsignatureAreas() );
         dispatch( startSaveAsignature( asignature, toast ) );
         setAsignatureDialog(false);
-        setAsignature(emptyAsignature);
-        dispatch( startRemoveAsignatureAreas() );
     }
 
     const handleAsignatureUpdate = ( asignature ) => {
-        asignature.knowledge_area = getAutocompleteSelectedData( areas, asignature.knowledge_area.name );
+        const newAsignature = {
+            id: asignatureUpdate.id,
+            state: asignatureUpdate.state,
+            created_at: asignatureUpdate.created_at,
+            ...asignatureUpdate
+        };
+        const asignatureToUpdate = {
+            ...asignature,
+            knowledge_area: asignature.knowledge_area.id
+        };
         dispatch( startUpdateAsignature( 
-            asignature, 
-            asignatureUpdate.id, 
+            newAsignature, 
+            asignatureToUpdate, 
             toast 
         ));
-        setAsignature(emptyAsignature);
         setAsignatureDialog(false);
         setShowUpdate(false);
         dispatch( startRemoveAsignatureAreas() );
     }
+    
+    const handleAsignatureBlock = ( asignature ) => {
+        const newAsignature = { ...asignature, state: 0 };
+        dispatch( startBlockAsignature( newAsignature, toast));
+    }
 
-    const handleAsignatureDelete = () => {
-        // Process
+    const handleAsignatureDelete = ( asignature ) => {
         dispatch( startDeleteAsignature( asignature.id, toast));
-        setDeleteAsignatureDialog(false);
-        setAsignature(emptyAsignature);
     }
 
     const handleAsignaturesDelete = () => {
@@ -125,13 +132,47 @@ export const AsignatureScreen = () => {
             getSingleModelKeys( selectedAsignatures ),
             toast
         ));
-        setDeleteAsignaturesDialog(false);
-        setSelectedAsignatures(null);
+        setSelectedAsignatures([]);
+    }
+
+    const handleConfirmBlockPeriodScreen = ( data ) => {
+        confirmDialog({
+          message: '¿Está seguro de bloquear la siguiente Asignatura?',
+          header: 'Confirmación de Bloqueo',
+          icon: 'fas fa-exclamation-triangle',
+          acceptLabel: 'Sí, bloquear',
+          rejectLabel: 'No bloquear',
+          acceptClassName: 'p-button-secondary',
+          accept: () => handleAsignatureBlock( data ),
+        });
+    }
+
+    const handleConfirmDeletePeriodScreen = ( data ) => {
+        confirmDialog({
+          message: '¿Está seguro de eliminar la siguiente Asignatura?',
+          header: 'Confirmación de Eliminado',
+          icon: 'fas fa-exclamation-triangle',
+          acceptLabel: 'Sí, eliminar',
+          rejectLabel: 'No eliminar',
+          acceptClassName: 'p-button-danger',
+          accept: () => handleAsignatureDelete( data ),
+        });
+    }
+
+    const handleConfirmDeleteManyTeachers = ( data ) => {
+        confirmDialog({
+          message: '¿Está seguro de eliminar los siguientes Asignaturas?',
+          header: 'Confirmación de Eliminado',
+          icon: 'fas fa-exclamation-triangle',
+          acceptLabel: 'Sí, eliminar',
+          rejectLabel: 'No eliminar',
+          acceptClassName: 'p-button-danger',
+          accept: () => handleAsignaturesDelete( data ),
+        });
     }
 
     const openNew = () => {
         dispatch( startLoadAsignatureAreas() );
-        setAsignature(emptyAsignature);
         setAsignatureDialog(true);
     }
 
@@ -155,33 +196,13 @@ export const AsignatureScreen = () => {
         dispatch( startRemoveAsignatureAreas() );
     }
 
-    const hideDeleteAsignatureDialog = () => {
-        setDeleteAsignatureDialog(false);
-    }
-
-    const hideDeleteAsignaturesDialog = () => {
-        setDeleteAsignaturesDialog(false);
-    }
-
-    const confirmDeleteAsignature = ( asignature ) => {
-        setAsignature( asignature );
-        setDeleteAsignatureDialog(true);
-    }
-
-    const confirmDeleteSelected = () => {
-        setDeleteAsignaturesDialog(true);
-    }
-
-    const onRowExpand = (event) => {
-        // dispatch( startLoadTeachersByArea( event.data.id ) );
-    }
-
-    const onRowCollapse = () => {
-        // dispatch( startRemoveTeachersByArea() );
-    }
+    const handleSetGlobalFilter = useCallback(
+        ( value ) => {
+          setGlobalFilter( value );
+        }, [],
+    );
 
     const searchAreas = (event) => {
-        
         let _filteredAreas;
         if (!event.query.trim().length) {
             _filteredAreas = [...areas]
@@ -190,17 +211,25 @@ export const AsignatureScreen = () => {
                 return area.name.toLowerCase().includes(event.query.toLowerCase());
             });
         }
-
         setFilteredAreas(_filteredAreas);
-
     }
 
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
-                <Button label="Nueva Asignatura" icon="fas fa-plus" className="p-button-primary mr-2" onClick={openNew} />
-                <Button label="Eliminar Asignatura/s" icon="fas fa-trash-alt"  className="p-button-danger" onClick={confirmDeleteSelected} 
-                disabled={!selectedAsignatures || !selectedAsignatures.length}/>
+                <Button 
+                    label="Nueva Asignatura" 
+                    icon="fas fa-plus" 
+                    className="p-button-primary mr-2" 
+                    onClick={openNew} 
+                />
+                <Button 
+                    label="Eliminar Asignaturas" 
+                    icon="fas fa-trash-alt" 
+                    className="p-button-danger" 
+                    disabled={selectedAsignatures.length < 2}
+                    onClick={handleConfirmDeleteManyTeachers} 
+                />
             </React.Fragment>
         );
     }
@@ -209,121 +238,68 @@ export const AsignatureScreen = () => {
         return (
             <React.Fragment>
                 <div className="actions">
+                    {
+                        rowData.state === 1 && (
+                            <>
+                                <Button 
+                                    icon="fas fa-pen" 
+                                    className="p-button-rounded p-button-warning mr-2"
+                                    tooltip='Editar Asignatura'
+                                    tooltipOptions={{position:'bottom'}}
+                                    onClick={() => openUpdate(rowData)} 
+                                />
+                                <Button 
+                                    icon="fas fa-ban" 
+                                    className="p-button-rounded p-button-secondary mr-2"
+                                    tooltip='Bloquear Asignatura'
+                                    tooltipOptions={{position:'bottom'}}
+                                    onClick={() => 
+                                        handleConfirmBlockPeriodScreen(rowData)
+                                    } 
+                                />
+                            </>
+                        )
+                    }
                     <Button 
-                        icon="far fa-edit" 
-                        className="p-button-rounded p-button-primary mr-2"
-                        tooltip='Editar Asignatura'
-                        tooltipOptions={{position:'bottom'}}
-                        onClick={() => openUpdate(rowData)} 
-                    />
-                    <Button 
-                        icon="pi pi-trash" 
+                        icon="fas fa-trash" 
                         className="p-button-rounded p-button-danger"
                         tooltip='Eliminar Asignatura'
                         tooltipOptions={{position:'bottom'}} 
-                        onClick={() => confirmDeleteAsignature(rowData)} 
+                        onClick={() => handleConfirmDeletePeriodScreen(rowData)} 
                     />
                 </div>
             </React.Fragment>
         );
     }
 
-    const header = (
-        <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h5 className="m-0">ADMINISTRAR ASIGNATURAS</h5>
-            <span className="block mt-2 md:mt-0 p-input-icon-left">
-                <i className="fas fa-search" />
-                <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Buscar..." />
-            </span>
-        </div>
-    );
-
     const asignatureDialogFooter = (
         <React.Fragment>
             <Button 
-                label="Cancelar" icon="fas fa-times-circle" 
-                className="p-button-text p-button-danger" onClick={hideDialog}
+                label="Cancelar" 
+                icon="fas fa-times-circle" 
+                className="p-button-text p-button-danger" 
+                onClick={hideDialog}
             />
             <Button 
-                label="Guardar" icon="fas fa-check-circle" 
-                className="p-button-text p-button-success" type='submit'
+                label="Guardar" 
+                icon="fas fa-check-circle" 
+                className="p-button-text p-button-success" 
+                type='submit'
                 onClick={formik.handleSubmit}
             />
         </React.Fragment>
     );
 
-    const deleteAsignatureDialogFooter = (
-        <React.Fragment>
-            <Button label="No" icon="fas fa-times-circle" className="p-button-text p-button-success" onClick={hideDeleteAsignatureDialog} />
-            <Button label="Si" icon="fas fa-check-circle" className="p-button-text p-button-danger" onClick={handleAsignatureDelete} />
-        </React.Fragment>
-    );
-
-    const deleteAsignaturesDialogFooter = (
-        <React.Fragment>
-            <Button label="No" icon="fas fa-times-circle" className="p-button-text p-button-success" onClick={hideDeleteAsignaturesDialog} />
-            <Button label="Si" icon="fas fa-check-circle" className="p-button-text p-button-danger" onClick={handleAsignaturesDelete} />
-        </React.Fragment>
-    );
-
     const itemTemplate = (item) => {
         return (
-            <div className="">
-                <div>{item.name}</div>
-            </div>
+            <div>{item.name}</div>
         );
     }
 
-    const rowExpansionTemplate = (data) => {
-        return (
-            <div className="orders-subtable">
-                <h5>Detalle de {data.name}</h5>
-                <div className="p-grid">
-                    <div className="p-col-12">
-                        <div className='card'>
-                            <div className="p-d-flex p-flex-wrap">
-                                <div className="p-mr-2 p-mb-2">
-                                    <h6>Nombre</h6>
-                                    {data.name}
-                                </div>
-                                <div className='p-mr-2 p-mb-2'>
-                                    <h6>Área de Conocimiento</h6>
-                                    {data.knowledge_area.name}
-                                </div>
-                                <div>
-                                    <h6>Objective</h6>
-                                    {data.objective}
-                                </div>
-                                <div>
-                                    <h6>Observaciones</h6>
-                                    {data.observations}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    const stateBodyTemplate = (rowData) => {
-        return <Badge
-            value={rowData.state}
-            className='ml-2' 
-            severity={
-                (rowData.state === 'Abierto')
-                    ? ('success')
-                    : ('danger')
-            }
-        ></Badge>;
-    }
-
-    const dateBodyTemplate = (rowData) => {
-        return <Badge 
-            value={rowData.created_at} 
-            severity='info'
-        ></Badge>;
-    }
+    const getFormErrorMessage = (name) => {
+        return isFormFieldValid(name, formik) && 
+        <small className="p-error">{formik.errors[name]}</small>;
+    };
 
     useEffect(() => {
         handleLoadAsignatures()
@@ -338,8 +314,8 @@ export const AsignatureScreen = () => {
                 <div className='col-12'>
                     <Message
                         severity="warn" 
-                        text="No se puede generar Áreas de Conocimiento si no está creado
-                        el Período Lectivo" 
+                        text="No se puede generar Áreas de Conocimiento si no está 
+                        creado el Período Lectivo" 
                     />
                 </div>
             </div>
@@ -350,50 +326,78 @@ export const AsignatureScreen = () => {
         <div className="p-grid crud-demo">
             <div className="p-col-12">
                 <div className='card'>
-
                     <Toast ref={toast} />
                     <Toolbar className="mb-4" left={leftToolbarTemplate}>
                     </Toolbar>
-
                     <DataTable
                         ref={dataTable} 
                         value={asignatures} 
                         selection={selectedAsignatures} 
                         globalFilter={globalFilter}
-                        header={header}
+                        header={
+                            <OwnerHeaderApp
+                              title={'Administrar Asignaturas'}
+                              icon={'fas fa-book-reader mr-2 icon-primary'}
+                              placeholder={'Buscar Asignaturas...'}
+                              withActive={false}
+                              setGlobalFilter={handleSetGlobalFilter}
+                              handleNewData={() => {}}
+                            />
+                        }
                         loading={loading}
                         expandedRows={expandedRows}
-                        rowExpansionTemplate={rowExpansionTemplate}
+                        rowExpansionTemplate={(e) => 
+                            <RowAsignatureExpansionApp 
+                                asignature={e}
+                            />
+                        }
                         dataKey="id" paginator rows={10} 
                         emptyMessage='No existen Asignaturas.'
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                        currentPageReportTemplate="{first} - {last} de {totalRecords} Asignaturas"
+                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks 
+                        NextPageLink LastPageLink CurrentPageReport"
+                        currentPageReportTemplate="{first} - {last} de {totalRecords} 
+                        Asignaturas"
                         resizableColumns columnResizeMode="expand"
                         className="datatable-responsive"
                         onSelectionChange={(e) => setSelectedAsignatures(e.value)}
                         onRowToggle={(e) => setExpandedRows(e.data)}
-                        onRowExpand={onRowExpand}
-                        onRowCollapse={onRowCollapse}
                     >
                         <Column expander style={{ width: '4em' }} />
-                        <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
-                        <Column field="name" header="Nombre" sortable></Column>
-                        <Column field="knowledge_area.name" header="Área de Conocimiento" sortable></Column>
                         <Column 
+                            selectionMode="multiple" 
+                            headerStyle={{ width: '3rem' }}
+                        ></Column>
+                        <Column
+                            className='text-center'
+                            field="name" 
+                            header="Nombre" 
+                            sortable
+                        ></Column>
+                        <Column 
+                            className='text-center'
+                            field="knowledge_area.name" 
+                            header="Área de Conocimiento" 
+                            sortable
+                        ></Column>
+                        <Column
+                            className='text-center'
                             field="state" 
                             header="Estado"
-                            body={stateBodyTemplate}
+                            body={(e) => <AdminStateTableApp data={e} />}
                             sortable
                         ></Column>
-                        <Column 
+                        <Column
+                            className='text-center' 
                             field='created_at' 
                             header="Fecha de Creación"
-                            body={dateBodyTemplate} 
+                            body={(e) => <AdminDateTableApp data={e} />} 
                             sortable
                         ></Column>
-                        <Column body={actionBodyTemplate}></Column>
+                        <Column
+                            className='text-center'
+                            body={actionBodyTemplate}
+                        ></Column>
                     </DataTable>
-
                     <Dialog
                         modal 
                         header={
@@ -408,7 +412,6 @@ export const AsignatureScreen = () => {
                         style={{ width: '550px' }} 
                     >
                         <div className="grid p-fluid mt-3">
-
                             <div className="field col-12">
                                 <span className="p-float-label">
                                     <InputText
@@ -416,16 +419,19 @@ export const AsignatureScreen = () => {
                                         name='name'
                                         value={formik.values.name}
                                         onChange={formik.handleChange}
-                                        className={classNames({ 'p-invalid': isFormFieldValid('name') })}
+                                        className={classNames({ 
+                                            'p-invalid': isFormFieldValid('name') 
+                                        })}
                                     />
                                     <label 
                                         htmlFor='name'
-                                        className={classNames({ 'p-error': isFormFieldValid('name', formik) })}
+                                        className={classNames({ 
+                                            'p-error': isFormFieldValid('name', formik) 
+                                        })}
                                     > Nombre*</label>
                                 </span>
                                 {getFormErrorMessage('name')}
                             </div>
-
                             <div className="field col-12">
                                 <span className="p-float-label">
                                     <AutoComplete 
@@ -438,17 +444,20 @@ export const AsignatureScreen = () => {
                                         suggestions={filteredAreas}
                                         completeMethod={searchAreas}
                                         itemTemplate={itemTemplate}
-                                        className={classNames({ 'p-invalid': isFormFieldValid('knowledge_area') })}
+                                        className={classNames({ 
+                                            'p-invalid': isFormFieldValid('knowledge_area') 
+                                        })}
                                         onChange={formik.handleChange}
                                     />
                                     <label 
                                         htmlFor='knowledge_area'
-                                        className={classNames({ 'p-error': isFormFieldValid('knowledge_area') })}
+                                        className={classNames({ 
+                                            'p-error': isFormFieldValid('knowledge_area') 
+                                        })}
                                     >Área de Conocimiento*</label>
                                 </span>
                                 {getFormErrorMessage('knowledge_area')}
                             </div>
-
                             <div className="field col-12">
                                 <span className="p-float-label">
                                     <InputTextarea
@@ -456,7 +465,9 @@ export const AsignatureScreen = () => {
                                         name='objective'
                                         required rows={3} cols={20} 
                                         value={formik.values.objective}
-                                        className={classNames({ 'p-invalid': isFormFieldValid('objective') })}
+                                        className={classNames({ 
+                                            'p-invalid': isFormFieldValid('objective') 
+                                        })}
                                         onChange={formik.handleChange}
                                     />
                                     <label htmlFor='objective'>
@@ -465,7 +476,6 @@ export const AsignatureScreen = () => {
                                 </span>
                                 {getFormErrorMessage('objective')}
                             </div>
-
                             <div className="field col-12">
                                 <span className="p-float-label">
                                     <InputTextarea
@@ -473,7 +483,9 @@ export const AsignatureScreen = () => {
                                         name='observations'
                                         required rows={3} cols={20} 
                                         value={formik.values.observations}
-                                        className={classNames({ 'p-invalid': isFormFieldValid('observations') })}
+                                        className={classNames({ 
+                                            'p-invalid': isFormFieldValid('observations') 
+                                        })}
                                         onChange={formik.handleChange}
                                     />
                                     <label htmlFor='observations'>
@@ -481,43 +493,8 @@ export const AsignatureScreen = () => {
                                     </label>
                                 </span>
                             </div>
-
-                        </div>
-
-                    </Dialog>
-
-                    <Dialog 
-                        visible={deleteAsignatureDialog} 
-                        style={{ width: '450px' }} 
-                        header="Confirmar" modal 
-                        footer={deleteAsignatureDialogFooter} 
-                        onHide={hideDeleteAsignatureDialog}
-                    >
-                        <div 
-                            className="flex align-items-center justify-content-center"
-                        >
-                            <i 
-                                className="fas fa-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} 
-                            />
-                                {asignature && <span>¿Está seguro que desea eliminar la siguiente Asignatura: <b>{asignature.name}</b>?</span>}
                         </div>
                     </Dialog>
-
-                    <Dialog 
-                        visible={deleteAsignaturesDialog} 
-                        style={{ width: '450px' }} 
-                        header="Confirmar" modal 
-                        footer={deleteAsignaturesDialogFooter} 
-                        onHide={hideDeleteAsignaturesDialog}
-                    >
-                        <div className="flex align-items-center justify-content-center">
-                            <i 
-                                className="fas fa-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} 
-                            />
-                            {asignature && <span>¿Está seguro que desea eliminar las siguientes <b>{selectedAsignatures && selectedAsignatures.length}</b> asignaturas seleccionadas?</span>}
-                        </div>
-                    </Dialog>
-
                 </div>
             </div>
         </div>

@@ -96,6 +96,14 @@ export const areaReducer = ( state = initialState, action ) => {
                 )
             }
 
+        case types.areaTeacherDelete:
+            return {
+                ...state,
+                teachers: state.teachers.filter( 
+                    teacher => teacher.id !== action.payload
+                )
+            }
+
         case types.areaTeacherRemove:
             return {
                 ...state,

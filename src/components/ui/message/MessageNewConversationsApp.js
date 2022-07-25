@@ -12,7 +12,6 @@ import {
 
 
 export const MessageNewConversationsApp = React.memo(({
-  userId,
   type,
   userSelected,
   setUserSelected,
@@ -28,11 +27,11 @@ export const MessageNewConversationsApp = React.memo(({
   const schoolPeriodId = localStorage.getItem('currentPeriodId');
 
   const handleLoadFilteredUsers = useCallback(
-    ( uid, type, schoolPeriodId ) => {
+    ( type, schoolPeriodId ) => {
       if (type === 1) {
-        dispatch( startLoadConversationUsersListByTeacher( uid, schoolPeriodId ) );
+        dispatch( startLoadConversationUsersListByTeacher( schoolPeriodId ) );
       } else if (type === 2) {
-        dispatch( startLoadConversationUsersListByStudent( uid, schoolPeriodId ));
+        dispatch( startLoadConversationUsersListByStudent( schoolPeriodId ));
       }
     }, [dispatch],
   );
@@ -57,15 +56,18 @@ export const MessageNewConversationsApp = React.memo(({
   }
 
   useEffect(() => {
-    if (userId && schoolPeriodId && type) {
-      handleLoadFilteredUsers( userId, type, schoolPeriodId );
+    if (schoolPeriodId && type) {
+      handleLoadFilteredUsers( type, schoolPeriodId );
     }
     return () => {
-      if (userId) {
-        handleRemoveFilteredUsers();
-      }
+      handleRemoveFilteredUsers();
     }
-  }, [userId, type, schoolPeriodId, handleLoadFilteredUsers, handleRemoveFilteredUsers]);
+  }, [
+    type, 
+    schoolPeriodId, 
+    handleLoadFilteredUsers, 
+    handleRemoveFilteredUsers
+  ]);
 
   return (
     <div className='grid p-fluid'>

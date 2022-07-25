@@ -13,8 +13,20 @@ export const adminReducer = (state = initialState, action) => {
         case types.adminLoad:
             return {
                 ...state,
-                admins: [...action.payload]
+                loading: true
             }
+
+        case types.adminStop:
+            return {
+                ...state,
+                loading: false
+            }
+
+        case types.adminList:
+            return {
+                ...state,
+                admins: [ ...action.payload ]
+        }
 
         case types.adminRemove:
             return {
@@ -25,7 +37,7 @@ export const adminReducer = (state = initialState, action) => {
         case types.adminNew:
             return {
                 ...state,
-                admins: [action.payload, ...state.admins]
+                admins: [ ...state.admins, action.payload ]
             }
             
         case types.adminUpdate:

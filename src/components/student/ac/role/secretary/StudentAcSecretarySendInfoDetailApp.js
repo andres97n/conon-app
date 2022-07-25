@@ -1,17 +1,28 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { useFormik } from 'formik';
+import { useDispatch } from 'react-redux';
+
+import { Button } from 'primereact/button';
+
+import { 
+  StudentAcSecretarySendDetailPathFormApp 
+} from './StudentAcSecretarySendDetailPathFormApp';
 
 import { getIconRole } from '../../../../../helpers/topic/table/topicTable';
 import { isValidHttpUrl } from '../../../../../helpers/abp-steps';
-import { StudentAcSecretarySendDetailPathFormApp } from './StudentAcSecretarySendDetailPathFormApp';
-import { Button } from 'primereact/button';
+import { 
+  startSaveFeaturedInformationSecretaryAc 
+} from '../../../../../actions/student/ac_roles/secretaryAc/featuredInformationSecretaryAc';
 
 
 export const StudentAcSecretarySendInfoDetailApp = React.memo(({
-  student
+  student,
+  teamDetailAc,
+  toast
 }) => {
 
+  const dispatch = useDispatch();
   const isMounted = useRef(true);
   const formik = useFormik({
     initialValues: {
@@ -49,10 +60,17 @@ export const StudentAcSecretarySendInfoDetailApp = React.memo(({
     }
   });
 
-  const { values, errors, setFieldValue, handleSubmit } = formik;
+  const { values, errors, handleReset, setFieldValue, handleSubmit } = formik;
 
   const handleSubmitSecretaryPaths = ( data ) => {
-    console.log(data);
+    const secretaryPaths = data.secretaryPaths.map( path => ({
+      team_detail_ac: teamDetailAc.id,
+      member_ac: student.id,
+      external_path: path.item,
+      description_path: path.description
+    }));
+    dispatch( startSaveFeaturedInformationSecretaryAc( secretaryPaths, toast ));
+    handleReset();
   }
 
   const handleConfirmSaveSecretaryPaths = ( data ) => {
@@ -97,7 +115,11 @@ export const StudentAcSecretarySendInfoDetailApp = React.memo(({
               <div className='col-6'>
                 <Button
                   icon='fas fa-save'
-                  label={values.secretaryPaths.length > 1 ? 'Envíar Enlaces' : 'Envíar Enlace'}
+                  label={
+                    values.secretaryPaths.length > 1 
+                      ? 'Envíar Enlaces' 
+                      : 'Envíar Enlace'
+                  }
                   type='submit'
                   className="p-button-raised" 
                   onClick={handleSubmit}
@@ -110,6 +132,8 @@ export const StudentAcSecretarySendInfoDetailApp = React.memo(({
       <StudentAcSecretarySendDetailPathFormApp 
         acContainer={values.secretaryPaths}
         errors={errors}
+        secretaryId={teamDetailAc?.id} 
+        memberId={student?.id} 
         setFieldValue={handleSetFieldValue}
       />
     </div>

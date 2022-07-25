@@ -5,8 +5,12 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 
 import { EmptyContentScreen } from '../../../ui/EmptyContentScreen';
 import { TeacherTopicAcActionRoleDetailApp } from './TeacherTopicAcActionRoleDetailApp';
+import { TeacherTopicAcActionRoleResumeApp } from './TeacherTopicAcActionRoleResumeApp';
 
-import { startLoadCurrentRubricAc, startRemoveRubricDetailAcList } from '../../../../actions/teacher/rubricAc';
+import { 
+  startLoadCurrentRubricAc, 
+  startRemoveRubricDetailAcList 
+} from '../../../../actions/teacher/rubricAc';
 import { startRemoveEvaluationDetailAcList } from '../../../../actions/teacher/evaluationAc';
 import { getIconRole, getLabelRole } from '../../../../helpers/topic/table/topicTable';
 
@@ -97,6 +101,9 @@ export const TeacherTopicAcResumeActionRoleBody = React.memo(({
           }
         </Accordion>
       </div>
+      <TeacherTopicAcActionRoleResumeApp
+        student={student}
+      />
     </div>
   )
 });

@@ -65,8 +65,7 @@ export const TeacherTopicTableApp = React.memo(({
               setShowStudentEvaluation={() => {}}
               setUser={() => {}}
             />
-          )
-          }
+          )}
           dataKey="id" paginator rows={10} 
           emptyMessage='No se encontraron Temas de Estudio.'
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink 

@@ -18,7 +18,6 @@ export const TopicTeacherBodyApp = React.memo(({
     <>
       {
         !showTopicPanel
-            // COMPONENTE ANTIGUO
           ? ( <MethodologySuggestionsScreen /> )
           : (
             isTopicSaved
