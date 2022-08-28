@@ -15,7 +15,7 @@ export const startLoadSecretaryInformationsAcList = ( teamId ) => {
     try {
       dispatch( startLoadingSecretaryInformationAc() );
       const respSecretaryInformationAc = await fetchWithToken( 
-        `ac-roles/api/secretary-information-ac?team_ac=${teamId}` 
+        `ac-roles/api/secretary-information-ac?team_ac=${teamId}`
       );
       const bodySecretaryInformationAc = await respSecretaryInformationAc.json();
 

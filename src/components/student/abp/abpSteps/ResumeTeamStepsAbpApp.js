@@ -96,8 +96,6 @@ export const ResumeTeamStepsAbpApp = React.memo(({
                 </AccordionTab>
               )
             }
-            {/* TODO: Comprobar como se muestra el resumen del paso 7 en el 
-            desarrollo de la metodología */}
             {
               stepTeam >= 8 && (
                 <AccordionTab header={customHeaderSteps("Paso VII")}>
@@ -108,7 +106,7 @@ export const ResumeTeamStepsAbpApp = React.memo(({
               )
             }
             {
-              stepTeam <= 9 && (
+              stepTeam >= 9 && (
                 <AccordionTab header={customHeaderSteps("Paso VIII")}>
                   <ResumeTeamStepEightAbpApp
                     teamId={teamId}

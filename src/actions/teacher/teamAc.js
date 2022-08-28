@@ -287,11 +287,12 @@ export const startSetTeamFinishedWork = ( teamDetailId ) => {
       const body_team_ac = await resp_team_ac.json();
 
       if ( body_team_ac.ok ) {
-        if (body_team_ac.conon_data) {
+        if (body_team_ac.conon_data === 0) {
           dispatch( setTeamFinished() );
-        } else {
-          dispatch( setTeamFinished() );
-        }
+        } 
+        // else {
+          // dispatch( setTeamFinished() );
+        // }
       } else if (body_team_ac.detail) {
         Swal.fire(
           'Error', body_team_ac.detail, 'error'

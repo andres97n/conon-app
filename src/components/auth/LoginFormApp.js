@@ -14,8 +14,8 @@ export const LoginFormApp = React.memo(() => {
     const formik = useFormik({
         initialValues: {
             // lUsername: 'andres', ADMIN
-            username: 'carlos',
-            password: '123456',
+            username: '',
+            password: '',
         },
         validate: (data) => {
             let errors = {}
