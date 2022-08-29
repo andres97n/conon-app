@@ -91,10 +91,10 @@ export const StudentAcSpokesmanQuestionFormApp = React.memo(({
   }, []);
 
   useEffect(() => {
-    if (Object.keys(teamDetailAc).length > 0 && spokesmanQuestions.length === 0) {
+    if (Object.keys(teamDetailAc).length > 0) {
       handleLoadSpokesmanQuestions( teamDetailAc.id );
     }
-  }, [teamDetailAc, spokesmanQuestions, handleLoadSpokesmanQuestions]);
+  }, [teamDetailAc, handleLoadSpokesmanQuestions]);
 
   return (
     <>
