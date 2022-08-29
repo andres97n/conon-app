@@ -18,7 +18,8 @@ export const startLoadSecretaryInformationsAcList = ( teamId ) => {
         `ac-roles/api/secretary-information-ac?team_ac=${teamId}`
       );
       const bodySecretaryInformationAc = await respSecretaryInformationAc.json();
-
+      console.log(teamId);
+      console.log(bodySecretaryInformationAc);
       if (bodySecretaryInformationAc.ok) {
         dispatch( setSecretaryInformationAcList( bodySecretaryInformationAc.conon_data));
         dispatch( endLoadingSecretaryInformationAc() );

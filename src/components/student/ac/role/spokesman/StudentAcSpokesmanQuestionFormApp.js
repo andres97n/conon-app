@@ -67,11 +67,11 @@ export const StudentAcSpokesmanQuestionFormApp = React.memo(({
     });
   };
 
-  const handleLoadSpokesmanQuestions = useCallback(
-    ( teamDetailId ) => {
-      dispatch( startLoadSpokesmanQuestionsWithAnswersAc( teamDetailId ));
-    }, [dispatch],
-  );
+  // const handleLoadSpokesmanQuestions = useCallback(
+  //   ( teamDetailId ) => {
+  //     dispatch( startLoadSpokesmanQuestionsWithAnswersAc( teamDetailId ));
+  //   }, [dispatch],
+  // );
 
   const handleSetFieldValue = useCallback(
     ( field, value ) => {
