@@ -23,10 +23,12 @@ export const startLoadSecretaryInformationsAcList = ( teamId ) => {
         dispatch( setSecretaryInformationAcList( bodySecretaryInformationAc.conon_data));
         dispatch( endLoadingSecretaryInformationAc() );
       } else {
+        console.log(bodySecretaryInformationAc.detail);
         Swal.fire('Error', bodySecretaryInformationAc.detail, 'error');
       }
 
     } catch (error) {
+      console.log(error);
       Swal.fire(
         'Error', `${error}, consulte con el Desarrollador.`, 'error'
       );

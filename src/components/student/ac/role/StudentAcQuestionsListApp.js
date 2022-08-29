@@ -9,7 +9,8 @@ import { EmptyContentScreen } from '../../../ui/EmptyContentScreen';
 
 import { 
   startBlockSpokesmanQuestionAc,
-  startLoadSpokesmanQuestionsWithAnswersAc 
+  startLoadSpokesmanQuestionsWithAnswersAc, 
+  startRemoveSpokesmanQuestionAcList
 } from '../../../../actions/student/ac_roles/spokesmanAc/spokesmanQuestionAc';
 import { getIsMessageValidToDelete } from '../../../../helpers/conversation/conversationList';
 
@@ -31,6 +32,13 @@ export const StudentAcQuestionsListApp = React.memo(({
       dispatch( startLoadSpokesmanQuestionsWithAnswersAc( teamDetailId ));
     }, [dispatch],
   );
+
+  const handleRemoveSpokesmanQuestions = useCallback(
+    () => {
+      dispatch( startRemoveSpokesmanQuestionAcList() );
+    }, [dispatch],
+  );
+  
 
   const handleBlockSpokesmanQuestion = ( data ) => {
     dispatch( startBlockSpokesmanQuestionAc( data, toast ));
@@ -61,7 +69,13 @@ export const StudentAcQuestionsListApp = React.memo(({
     ) {
       handleLoadSpokesmanQuestions( teamDetailAc.id );
     }
-  }, [teamDetailAc, handleLoadSpokesmanQuestions]);
+    
+    return () => {
+      if (Object.keys(teamDetailAc).length > 0) {
+        handleRemoveSpokesmanQuestions();
+      }
+    }
+  }, [teamDetailAc, handleLoadSpokesmanQuestions, handleRemoveSpokesmanQuestions]);
 
   if (loadingSpokesmanQuestion) {
     return (

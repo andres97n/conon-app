@@ -7,9 +7,6 @@ import { StudentAcSpokesmanQuestionFormApp } from './StudentAcSpokesmanQuestionF
 import { StudentAcSpokesmanTeamDescriptionApp } from './StudentAcSpokesmanTeamDescriptionApp';
 import { StudentAcSpokesmanTeamResumeFormApp } from './StudentAcSpokesmanTeamResumeFormApp';
 
-import { 
-  startRemoveSpokesmanQuestionAcList 
-} from '../../../../../actions/student/ac_roles/spokesmanAc/spokesmanQuestionAc';
 import {
   startRemoveActivityDescriptionSpokesmanAcList
 } from '../../../../../actions/student/ac_roles/spokesmanAc/activitityDescriptionSpokesmanAc';
@@ -31,7 +28,6 @@ export const StudentAcSpokesmanRoleBodyApp = React.memo(({
 
   const handleRemoveSpokesmanData = useCallback(
     () => {
-      dispatch( startRemoveSpokesmanQuestionAcList() );
       dispatch( startRemoveActivityDescriptionSpokesmanAcList() );
       dispatch( startRemovePerformanceDescriptionSpokesmanAcList() );
     }, [dispatch],
