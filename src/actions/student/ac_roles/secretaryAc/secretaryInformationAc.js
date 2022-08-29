@@ -13,25 +13,20 @@ import {
 export const startLoadSecretaryInformationsAcList = ( teamId ) => {
   return async (dispatch) => {
     try {
-      console.log(teamId);
       dispatch( startLoadingSecretaryInformationAc() );
       const respSecretaryInformationAc = await fetchWithToken( 
         `ac-roles/api/secretary-information-ac?team_ac=${teamId}`
       );
-      console.log(respSecretaryInformationAc);
       const bodySecretaryInformationAc = await respSecretaryInformationAc.json();
-      console.log(bodySecretaryInformationAc);
       
       if (bodySecretaryInformationAc.ok) {
         dispatch( setSecretaryInformationAcList( bodySecretaryInformationAc.conon_data));
         dispatch( endLoadingSecretaryInformationAc() );
       } else {
-        console.log(bodySecretaryInformationAc.detail);
         Swal.fire('Error', bodySecretaryInformationAc.detail, 'error');
       }
 
     } catch (error) {
-      console.log(error);
       Swal.fire(
         'Error', `${error}, consulte con el Desarrollador.`, 'error'
       );
