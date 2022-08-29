@@ -22,15 +22,14 @@ export const MessageConversationDetailFormApp = React.memo(({
   const [messageInput, setMessageInput] = useState('');
 
   const handleSaveMessage = ( message ) => {
-    const secondUser = { id: user.id, name: user.name };
     const newMessage = {
       owner: ownerId,
       detail: message,
       state: 0,
       blocked: false
     }
-    console.log(conversation);
     if (Object.keys(conversation).length === 0) {
+      const secondUser = { id: user?.id, name: user?.name };
       if (Object.keys(secondUser).length > 0) {
         const newConversation = {
           first_user: ownerId,
