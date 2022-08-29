@@ -56,6 +56,7 @@ export const StudentAcReferenceListApp = React.memo(({
       Object.keys(teamDetailAc).length > 0 && isMounted.current
     ) {
       if (teamDetailAc.role_type !== 4) {
+        console.log(teamDetailAc);
         handleLoadTeamReferences( teamDetailAc.team_ac );
       }
     }  

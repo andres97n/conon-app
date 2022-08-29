@@ -111,7 +111,7 @@ export const StudentAcCoordinatorStrategyFormApp = React.memo(({
     }
   }, [teamDetailAc, handleLoadCoordinatorStrategiesAc]);
 
-  if (!loadingCoordinatorStrategy) {
+  if (loadingCoordinatorStrategy) {
     return (
       <div className='grid p-fluid'>
         <EmptyContentScreen />
