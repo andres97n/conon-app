@@ -120,10 +120,14 @@ export const StudentAcApp = React.memo(({
             <>
               <div className='col-12'>
                 <div className='card'>
-                  <StudentAcQuestionsListApp 
-                    teamDetailAc={userAc}
-                    toast={toast}
-                  />
+                  {
+                    userAc?.role_type !== 2 && (
+                      <StudentAcQuestionsListApp 
+                        teamDetailAc={userAc}
+                        toast={toast}
+                      />
+                    )
+                  }
                   <StudentAcReferenceListApp 
                     teamDetailAc={userAc}
                     toast={toast}

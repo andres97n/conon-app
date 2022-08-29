@@ -10,7 +10,7 @@ import { StudentAcQuestionFormDetailApp } from './StudentAcQuestionFormDetailApp
 
 import { getMultipleFormError } from '../../../../../helpers/topic/student/ac/acCoordinator';
 import { 
-  startSaveSpokesmanQuestionAc 
+  startLoadSpokesmanQuestionsWithAnswersAc, startSaveSpokesmanQuestionAc 
 } from '../../../../../actions/student/ac_roles/spokesmanAc/spokesmanQuestionAc';
 import { 
   getSpokesmanQuestionsObject 
@@ -67,11 +67,11 @@ export const StudentAcSpokesmanQuestionFormApp = React.memo(({
     });
   };
 
-  // const handleLoadSpokesmanQuestions = useCallback(
-  //   ( teamDetailId ) => {
-  //     dispatch( startLoadSpokesmanQuestionsWithAnswersAc( teamDetailId ));
-  //   }, [dispatch],
-  // );
+  const handleLoadSpokesmanQuestions = useCallback(
+    ( teamDetailId ) => {
+      dispatch( startLoadSpokesmanQuestionsWithAnswersAc( teamDetailId ));
+    }, [dispatch],
+  );
 
   const handleSetFieldValue = useCallback(
     ( field, value ) => {
@@ -90,11 +90,11 @@ export const StudentAcSpokesmanQuestionFormApp = React.memo(({
     }
   }, []);
 
-  // useEffect(() => {
-  //   if (Object.keys(teamDetailAc).length > 0 && spokesmanQuestions.length === 0) {
-  //     handleLoadSpokesmanQuestions( teamDetailAc.id );
-  //   }
-  // }, [teamDetailAc, spokesmanQuestions, handleLoadSpokesmanQuestions]);
+  useEffect(() => {
+    if (Object.keys(teamDetailAc).length > 0 && spokesmanQuestions.length === 0) {
+      handleLoadSpokesmanQuestions( teamDetailAc.id );
+    }
+  }, [teamDetailAc, spokesmanQuestions, handleLoadSpokesmanQuestions]);
 
   return (
     <>
