@@ -29,8 +29,9 @@ export const MessageConversationDetailFormApp = React.memo(({
       state: 0,
       blocked: false
     }
+    console.log(conversation);
     if (Object.keys(conversation).length === 0) {
-      if (user.id) {
+      if (Object.keys(secondUser).length > 0) {
         const newConversation = {
           first_user: ownerId,
           second_user: secondUser.id,
