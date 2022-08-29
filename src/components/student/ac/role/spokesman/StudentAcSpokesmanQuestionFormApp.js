@@ -10,7 +10,7 @@ import { StudentAcQuestionFormDetailApp } from './StudentAcQuestionFormDetailApp
 
 import { getMultipleFormError } from '../../../../../helpers/topic/student/ac/acCoordinator';
 import { 
-  startLoadSpokesmanQuestionsWithAnswersAc, startSaveSpokesmanQuestionAc 
+  startSaveSpokesmanQuestionAc 
 } from '../../../../../actions/student/ac_roles/spokesmanAc/spokesmanQuestionAc';
 import { 
   getSpokesmanQuestionsObject 
